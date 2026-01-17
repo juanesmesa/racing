@@ -45,4 +45,4 @@ Este proyecto fue desarrollado para gestionar eventos de sim racing en la unidad
 * **Estabilidad Visual:** Implementación de `font-variant-numeric: tabular-nums` para garantizar que los caracteres del cronómetro mantengan un ancho fijo durante la ejecución.
 
 ---
-Desarrollado por **Juanes** - *Sim Racer & QA Engineering*
+Desarrollado por **Juanes** - *Sim Racer & QA Engineer*
