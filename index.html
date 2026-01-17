@@ -167,16 +167,29 @@
   </aside>
 
   <main class="content-area">
-    <section class="podium-container" id="podiumTop3"></section>
-    <section class="card table-card">
-      <div class="lbHeader">
-        <div class="cell">#</div><div class="cell">Piloto</div><div class="cell center">Mejor Tiempo</div><div class="cell center">Intentos</div><div class="cell right">Tiempos</div>
-      </div>
-      <div class="table-scroll-area">
+  <section class="podium-container" id="podiumTop3"></section>
+
+  <section class="card table-card">
+    <div style="background: rgba(31, 111, 235, 0.1); border: 1px solid var(--accent); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <label style="color: var(--accent); margin-bottom: 10px; font-weight: bold; letter-spacing: 2px;">CRONÓMETRO EN VIVO</label>
+        <div id="liveTime" style="font-size: 70px; font-weight: 900; color: #00ff00; font-family: 'Orbitron'; text-shadow: 0 0 15px rgba(0,255,0,0.5); font-variant-numeric: tabular-nums; letter-spacing: 2px; line-height: 1;">
+            00:00.00
+        </div>
+    </div>
+
+    <div class="lbHeader">
+        <div class="cell">#</div>
+        <div class="cell">Piloto</div>
+        <div class="cell center">Mejor Tiempo</div>
+        <div class="cell center">Intentos</div>
+        <div class="cell right">Tiempos</div>
+    </div>
+
+    <div class="table-scroll-area">
         <div id="fullLeaderboard"></div>
-      </div>
-    </section>
-  </main>
+    </div>
+</section>
+</main>
 </div>
 
 <div id="historyModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
@@ -344,7 +357,7 @@ function selectPilot(id, name) {
     e.target.value = v;
   });
 
-  renderAll();
+renderAll();
 
 
 
@@ -353,27 +366,42 @@ const socket = new WebSocket('ws://localhost:8765');
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     
+    // 1. LÓGICA DEL CRONÓMETRO EN VIVO
+     // 1. LÓGICA DEL CRONÓMETRO EN VIVO
+    if (data.type === "LIVE") {
+        const timeElement = document.getElementById("liveTime");
+        if (timeElement && data.current_ms !== undefined) {
+            const ms = data.current_ms;
+            const m = Math.floor(ms / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            const x = Math.floor((ms % 1000) / 10); 
+            
+            // Forzamos que los números no bailen mediante estilo si no lo pusiste en el HTML
+            timeElement.style.fontVariantNumeric = "tabular-nums";
+            
+            timeElement.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(2,'0')}`;
+        }
+    }
+    
+    // 2. LÓGICA DE REGISTRO AUTOMÁTICO (Tu lógica actual intacta)
     if (data.type === "NEW_LAP") {
-        // Obtenemos el ID que ya confirmamos que se está guardando
         const currentDriverId = document.getElementById("driverSelect").value;
         
         if (!currentDriverId) {
-            console.error("Vuelta detectada, pero no hay ID de piloto vinculado.");
+            console.error("Vuelta detectada, pero no hay piloto seleccionado.");
             return;
         }
 
-        // Conversión de milisegundos a formato MM:SS.mmm
         const ms = data.time_ms;
         const m = Math.floor(ms / 60000);
         const s = Math.floor((ms % 60000) / 1000);
         const x = ms % 1000;
         const formatted = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
 
-        // Asignación y guardado automático
         const lapInput = document.getElementById("lapTime");
         if (lapInput) {
             lapInput.value = formatted;
-            saveLap(); // Ejecuta tu lógica de guardado y actualización de tabla/podio
+            saveLap(); 
             console.log("✅ Tiempo registrado automáticamente: " + formatted);
         }
     }
