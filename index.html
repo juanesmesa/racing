@@ -115,6 +115,33 @@
     
     .status-msg { margin-bottom: 10px; font-size: 13px; color: #fff; font-weight: bold; }
     .status-msg span { color: var(--accent); }
+
+
+/* Estilo para el selector de fuentes (Dropdown) */
+select {
+    background-color: #0f1722; /* El mismo fondo oscuro de tus cards */
+    color: white;              /* Texto siempre blanco */
+    border: 1px solid var(--border2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Esto soluciona el texto invisible en las opciones */
+select option {
+    background-color: #0f1722; /* Fondo oscuro para la lista desplegable */
+    color: white;              /* Texto blanco para que sea legible */
+    padding: 10px;
+}
+
+/* Cambio de color al pasar el cursor (opcional para mejor UX) */
+select option:hover, 
+select option:focus {
+    background-color: var(--accent); /* Azul cuando pasas el mouse */
+}
+
   </style>
 </head>
 
