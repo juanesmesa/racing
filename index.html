@@ -7,7 +7,7 @@
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/2822/2822628.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Oxanium:wght@400;600;800&family=Chakra+Petch:wght@400;600;700&family=Audiowide&family=Black+Ops+One&family=Faster+One&family=Racing+Sans+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Oxanium:wght@400;600;800&family=Chakra+Petch:wght@400;600;700&family=Audiowide&family=Genos:wght@400;700;800&family=Bruno+Ace+SC&family=Michroma&family=Sono:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
   
@@ -115,6 +115,30 @@
     
     .status-msg { margin-bottom: 10px; font-size: 13px; color: #fff; font-weight: bold; }
     .status-msg span { color: var(--accent); }
+
+/* Estilo para el selector de fuentes (Dropdown) */
+select {
+    background-color: #0f1722;
+    color: white;
+    border: 1px solid var(--border2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+}
+
+select option {
+    background-color: #0f1722;
+    color: white;
+    padding: 10px;
+}
+
+select option:hover, 
+select option:focus {
+    background-color: var(--accent);
+}
+
   </style>
 </head>
 
@@ -126,12 +150,13 @@
     <select class="font-switcher" onchange="document.body.style.fontFamily = this.value">
       <option value="'Orbitron', sans-serif">Orbitron (Cyber)</option>
       <option value="'Oxanium', sans-serif">Oxanium (Racing)</option>
+      <option value="'Genos', sans-serif">Genos (Modern)</option>
+      <option value="'Bruno Ace SC', sans-serif">Bruno Ace (Futurist)</option>
+      <option value="'Michroma', sans-serif">Michroma (Clean)</option>
+      <option value="'Sono', monospace">Sono (Monospace)</option>
       <option value="'Rajdhani', sans-serif">Rajdhani (Tech)</option>
       <option value="'Audiowide', sans-serif">Audiowide (Future)</option>
-      <option value="'Racing Sans One', sans-serif">Racing Sans (Clásico)</option>
       <option value="'Chakra Petch', sans-serif">Chakra (Drift)</option>
-      <option value="'Black Ops One', sans-serif">Black Ops (GT)</option>
-      <option value="'Faster One', sans-serif">Faster (Drag)</option>
     </select>
     <button class="ghost" onclick="document.getElementById('importInput').click()">Importar CSV</button>
     <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
