@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Race Control</title>
+  <title>Race Control - ORIÓN</title>
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/2822/2822628.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,6 @@
   
   <style>
     :root {
-      /* DARK MODE (Default) */
       --bg: #070a0f;
       --card-bg: rgba(15,23,34,0.85);
       --header-bg: rgba(15,23,34,0.9);
@@ -30,7 +29,6 @@
     }
 
     [data-theme="light"] {
-      /* LIGHT MODE - Blanco hueso */
       --bg: #f2f2f2;
       --card-bg: #ffffff;
       --header-bg: rgba(242, 242, 242, 0.9);
@@ -41,7 +39,6 @@
       --live-timer-color: #000000;
     }
 
-    /* CLASE PARA OCULTAR ELEMENTOS DE ADMIN */
     .admin-hidden { display: none !important; }
 
     * { box-sizing: border-box; }
@@ -93,7 +90,6 @@
     button.danger { background: var(--danger); color: #fff; }
     button.btn-details { padding: 6px 12px; font-size: 10px; background: var(--accent); color: #fff; }
 
-    /* PODIUM: Sin animaciones extra */
     .podium-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex-shrink: 0; }
     .podiumCard { position: relative; border-radius: 24px; padding: 4px; background: var(--card-color); min-height: 180px; display: flex; }
     .podium-inner { width: 100%; height: 100%; background: var(--card-bg); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -117,10 +113,12 @@
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: var(--card-bg); border: 1px solid var(--border2); border-radius: 24px; width: 600px; padding: 30px; color: var(--text); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .modal-list { overflow-y: auto; flex: 1; max-height: 400px; }
+    .modal-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; margin-bottom: 10px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); }
     .history-mini { flex: 1; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 15px; overflow-y: auto; }
     .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
     
-    /* RESPONSIVE */
     @media (max-width: 900px) {
       body { overflow-y: auto; height: auto; }
       .main-layout { grid-template-columns: 1fr; padding: 10px; }
@@ -132,6 +130,8 @@
       #liveTime { font-size: 50px !important; }
     }
   </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -140,8 +140,7 @@
   <h1>🏁 LEADERBOARD 🏁</h1>
   <div class="actions">
     <button class="ghost" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
-    <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">👁️ Ver como Espectador</button>
-    
+    <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">🔑 Activar Modo Admin</button>
     <button class="ghost admin-only" onclick="document.getElementById('importInput').click()">Importar CSV</button>
     <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
     <button class="ghost admin-only" onclick="exportRecords()">Exportar CSV</button>
@@ -206,45 +205,144 @@
       <h2 id="modalTitle">PILOTO</h2>
       <button class="btn-details" style="background:var(--danger)" onclick="closeModal()">CERRAR</button>
     </div>
-    <div id="modalList" style="max-height:400px; overflow-y:auto;"></div>
+    <div id="modalList" class="modal-list"></div>
+  </div>
+</div>
+
+<div id="loginModal" class="modal-overlay" onclick="if(event.target === this) closeLoginModal()">
+  <div class="modal-content" style="width: 400px;">
+    <div class="modal-header">
+      <h2>ACCESO ADMIN</h2>
+    </div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="tu@email.com">
+    <label>Contraseña</label>
+    <input type="password" id="loginPassword" placeholder="••••••••">
+    <button class="primary" onclick="handleLogin()">INICIAR SESIÓN</button>
+    <button class="ghost" style="width: 100%; margin-top: 10px;" onclick="closeLoginModal()">CANCELAR</button>
   </div>
 </div>
 
 <script>
-  const STORAGE_KEY = "race_control_v16";
-  let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? { drivers: [], laps: {} };
+  // 1. CONFIGURACIÓN SUPABASE
+  const SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let state = { drivers: [], laps: {} };
   const podColors = ["#ffb700", "#00f2ff", "#ff00ea"];
   const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
+  let isAdmin = false;
 
-  // --- LÓGICA DE ADMINISTRACIÓN ---
-  let isAdmin = true;
-
-  function toggleAdminView() {
-    isAdmin = !isAdmin;
-    const adminElements = document.querySelectorAll('.admin-only');
-    const btn = document.getElementById('adminToggleBtn');
-
-    adminElements.forEach(el => {
-      if (!isAdmin) {
-        el.classList.add('admin-hidden');
-      } else {
-        el.classList.remove('admin-hidden');
-      }
-    });
-
-    btn.innerText = isAdmin ? '👁️ Ver como Espectador' : '🔑 Activar Modo Admin';
+  async function init() {
+    await checkUser();
+    await loadDataFromSupabase();
+    renderAll();
   }
 
-  function toggleTheme() {
-    const html = document.documentElement;
-    const btn = document.getElementById('themeBtn');
-    if (html.getAttribute('data-theme') === 'light') {
-      html.removeAttribute('data-theme');
-      btn.innerText = '☀️ Modo Claro';
-    } else {
-      html.setAttribute('data-theme', 'light');
-      btn.innerText = '🌙 Modo Oscuro';
+  async function checkUser() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+      isAdmin = true;
+      updateAdminUI();
     }
+  }
+
+  async function loadDataFromSupabase() {
+    const { data: drivers } = await _supabase.from('drivers').select('*');
+    const { data: laps } = await _supabase.from('laps').select('*').order('created_at', { ascending: false });
+    
+    state.drivers = drivers || [];
+    state.laps = {};
+    state.drivers.forEach(d => state.laps[d.id] = []);
+    
+    if (laps) {
+      laps.forEach(l => {
+        if (state.laps[l.driver_id]) {
+          state.laps[l.driver_id].push({ time: l.time_ms, ts: l.created_at });
+        }
+      });
+    }
+  }
+
+  // AUTH LOGIC
+  function toggleAdminView() {
+    if (!isAdmin) { document.getElementById('loginModal').style.display = 'flex'; } 
+    else { handleLogout(); }
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) { alert("Error: " + error.message); } 
+    else { isAdmin = true; closeLoginModal(); updateAdminUI(); }
+  }
+
+  async function handleLogout() {
+    await _supabase.auth.signOut();
+    isAdmin = false;
+    updateAdminUI();
+  }
+
+  function updateAdminUI() {
+    const adminElements = document.querySelectorAll('.admin-only');
+    const btn = document.getElementById('adminToggleBtn');
+    adminElements.forEach(el => isAdmin ? el.classList.remove('admin-hidden') : el.classList.add('admin-hidden'));
+    btn.innerText = isAdmin ? '🔒 Cerrar Sesión' : '🔑 Activar Modo Admin';
+  }
+
+  function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+
+  // DATA LOGIC
+  async function addDriver() {
+    const input = document.getElementById("pilotName");
+    if(!input.value.trim()) return;
+    const { data, error } = await _supabase.from('drivers').insert([{ name: input.value.trim() }]).select();
+    if (!error) { await loadDataFromSupabase(); input.value = ""; renderAll(); }
+  }
+
+  async function saveLap() {
+    const input = document.getElementById("lapTime");
+    const id = document.getElementById("driverSelect").value;
+    const parts = input.value.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
+    if(!id || !parts) return;
+    const ms = (parseInt(parts[1])*60000) + (parseInt(parts[2])*1000) + parseInt(parts[3].padEnd(3,'0'));
+    
+    const allTimes = Object.values(state.laps).flat().map(l => l.time);
+    const globalBest = allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
+
+    const { error } = await _supabase.from('laps').insert([{ driver_id: id, time_ms: ms }]);
+    if (!error) { 
+      if (ms < globalBest) { showRecordNotice(); }
+      await loadDataFromSupabase(); 
+      input.value = ""; 
+      renderAll(); 
+    }
+  }
+
+  function showRecordNotice() {
+    const msg = document.getElementById("recordMessage");
+    msg.style.opacity = "1";
+    setTimeout(() => { msg.style.opacity = "0"; }, 5000);
+  }
+
+  async function removeLastLap(){
+    const id = document.getElementById("driverSelect").value;
+    if(!id || !state.laps[id].length) return;
+    if(confirm("¿Eliminar el último tiempo?")) {
+      const lastLap = state.laps[id][0]; // Ya vienen ordenadas desc
+      const { error } = await _supabase.from('laps').delete().match({ driver_id: id, created_at: lastLap.ts });
+      if(!error) { await loadDataFromSupabase(); renderAll(); }
+    }
+  }
+
+  // --- RENDERING FUNCTIONS ---
+  function formatMs(ms){
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const x = ms % 1000;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
   }
 
   function filterDrivers(val) {
@@ -262,47 +360,6 @@
     document.getElementById("pilotSearch").value = name;
     document.getElementById("autocompleteList").style.display = "none";
     renderMiniHistory();
-  }
-
-  function addDriver(){
-    const input = document.getElementById("pilotName");
-    if(!input.value.trim()) return;
-    const id = "d-" + Date.now();
-    state.drivers.push({ id, name: input.value.trim() });
-    state.laps[id] = [];
-    input.value = "";
-    saveAndRender();
-  }
-
-  function saveLap() {
-    const input = document.getElementById("lapTime");
-    const id = document.getElementById("driverSelect").value;
-    const parts = input.value.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
-    if(!id || !parts) return;
-    const ms = (parseInt(parts[1])*60000) + (parseInt(parts[2])*1000) + parseInt(parts[3].padEnd(3,'0'));
-    const allTimes = Object.values(state.laps).flat().map(l => l.time);
-    const globalBest = allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
-    state.laps[id].push({ time: ms, ts: Date.now() });
-    if (ms < globalBest) {
-      const msg = document.getElementById("recordMessage");
-      msg.style.opacity = "1";
-      setTimeout(() => { msg.style.opacity = "0"; }, 5000);
-    }
-    input.value = "";
-    saveAndRender();
-  }
-
-  function removeLastLap(){
-    const id = document.getElementById("driverSelect").value;
-    if(!id || !state.laps[id].length) return;
-    if(confirm("¿Eliminar el último tiempo?")) { state.laps[id].pop(); saveAndRender(); }
-  }
-
-  function formatMs(ms){
-    const m = Math.floor(ms / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    const x = ms % 1000;
-    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
   }
 
   function renderAll(){
@@ -339,7 +396,7 @@
   function showDetails(id){
     const d = state.drivers.find(x => x.id === id);
     document.getElementById("modalTitle").innerText = d.name;
-    const times = [...state.laps[id]].reverse();
+    const times = [...state.laps[id]]; // Ya vienen desc de Supabase
     document.getElementById("modalList").innerHTML = times.map((l, i) => `
       <div class="modal-item">
         <span>Vuelta ${times.length - i}</span>
@@ -355,42 +412,34 @@
     const list = document.getElementById("miniHistoryList");
     if(!id) { list.innerHTML = "Sin datos"; return; }
     const laps = state.laps[id];
-    list.innerHTML = [...laps].reverse().slice(0,3).map(l => `
+    list.innerHTML = laps.slice(0,3).map(l => `
       <div class="hist-item">
         <span>${new Date(l.ts).toLocaleTimeString()}</span>
         <strong>${formatMs(l.time)}</strong>
       </div>`).join("");
   }
 
-  function saveAndRender(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
-  function resetAll(){ if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
-
-  function importCSV(e) {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const lines = ev.target.result.split('\n').map(l => l.trim()).filter(l => l);
-      if (lines.length <= 1) return;
-      const newDrivers = []; const newLaps = {};
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(';'); if (cols.length < 2) continue;
-        const name = cols[0]; const timeStr = cols[1]; const ts = cols[2] ? parseInt(cols[2]) : Date.now();
-        let d = newDrivers.find(x => x.name === name);
-        if (!d) { d = { id: "d-" + (Date.now() + newDrivers.length), name }; newDrivers.push(d); newLaps[d.id] = []; }
-        const p = timeStr.match(/(\d{2}):(\d{2})\.(\d{3})/);
-        if (p) newLaps[d.id].push({ time: (parseInt(p[1])*60000) + (parseInt(p[2])*1000) + parseInt(p[3]), ts });
-      }
-      state.drivers = newDrivers; state.laps = newLaps; saveAndRender();
-    };
-    reader.readAsText(e.target.files[0]);
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    if (html.getAttribute('data-theme') === 'light') {
+      html.removeAttribute('data-theme');
+      btn.innerText = '☀️ Modo Claro';
+    } else {
+      html.setAttribute('data-theme', 'light');
+      btn.innerText = '🌙 Modo Oscuro';
+    }
   }
 
-  function exportRecords(){
-    let csv = "\ufeffPiloto;Tiempo;Timestamp\n";
-    state.drivers.forEach(d => state.laps[d.id].forEach(l => csv += `${d.name};${formatMs(l.time)};${l.ts}\n`));
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = "ORION_Backup.csv"; a.click();
+  async function resetAll(){
+    if(!isAdmin) return;
+    if(confirm("¿ESTÁS SEGURO? Esto borrará TODOS los tiempos de la base de datos.")){
+      const { error } = await _supabase.from('laps').delete().neq('time_ms', 0);
+      if(!error) { await loadDataFromSupabase(); renderAll(); }
+    }
   }
 
+  // --- UTILS ---
   const socket = new WebSocket('ws://localhost:8765');
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -405,14 +454,7 @@
     }
   };
 
-  document.getElementById("lapTime").addEventListener("input", e => {
-    let v = e.target.value.replace(/\D/g,'');
-    if(v.length > 4) v = v.slice(0,2) + ":" + v.slice(2,4) + "." + v.slice(4,7);
-    else if(v.length > 2) v = v.slice(0,2) + ":" + v.slice(2);
-    e.target.value = v;
-  });
-
-  renderAll();
+  init();
 </script>
 </body>
 </html>
