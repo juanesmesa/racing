@@ -230,7 +230,7 @@
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let state = { drivers: [], laps: {} };
-  const podColors = ["#ffb700", "#00f2ff", "#ff00ea"];
+  const podColors = ["#FFC107", "#C0C0C0", "#CD7F32"];
   const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
   let isAdmin = false;
 
@@ -239,6 +239,22 @@
     await loadDataFromSupabase();
     renderAll();
   }
+
+
+  // Validar y formatear la entrada de tiempo mientras el usuario escribe
+document.getElementById("lapTime").addEventListener("input", e => {
+    // Eliminar todo lo que NO sea un número
+    let v = e.target.value.replace(/\D/g, ''); 
+    
+    // Aplicar el formato MM:SS.mmm dinámicamente
+    if (v.length > 4) {
+        v = v.slice(0, 2) + ":" + v.slice(2, 4) + "." + v.slice(4, 7);
+    } else if (v.length > 2) {
+        v = v.slice(0, 2) + ":" + v.slice(2);
+    }
+    
+    e.target.value = v;
+});
 
 async function checkUser() {
   const { data: { user } } = await _supabase.auth.getUser();
@@ -306,22 +322,50 @@ async function checkUser() {
 
   async function saveLap() {
     const input = document.getElementById("lapTime");
-    const id = document.getElementById("driverSelect").value;
-    const parts = input.value.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
-    if(!id || !parts) return;
-    const ms = (parseInt(parts[1])*60000) + (parseInt(parts[2])*1000) + parseInt(parts[3].padEnd(3,'0'));
-    
+    const id = document.getElementById("driverSelect").value; // Este es el UUID del piloto
+    const timeValue = input.value;
+
+    // 1. Validar que tengamos un piloto seleccionado
+    if (!id) {
+        alert("⚠️ Por favor, busca y selecciona un piloto primero.");
+        return;
+    }
+
+    // 2. Validar formato estricto MM:SS.mmm
+    const parts = timeValue.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
+    if (!parts) {
+        alert("⚠️ Formato de tiempo inválido. Usa 00:00.000");
+        return;
+    }
+
+    // Calcular milisegundos
+    const ms = (parseInt(parts[1]) * 60000) + (parseInt(parts[2]) * 1000) + parseInt(parts[3].padEnd(3, '0'));
+
+    // 3. Obtener el mejor tiempo actual para el mensaje de récord
     const allTimes = Object.values(state.laps).flat().map(l => l.time);
     const globalBest = allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
 
-    const { error } = await _supabase.from('laps').insert([{ driver_id: id, time_ms: ms }]);
-    if (!error) { 
-      if (ms < globalBest) { showRecordNotice(); }
-      await loadDataFromSupabase(); 
-      input.value = ""; 
-      renderAll(); 
+    // 4. Guardar en Supabase
+    const { data, error } = await _supabase
+        .from('laps')
+        .insert([{ 
+            driver_id: id, 
+            time_ms: ms 
+        }])
+        .select();
+
+    if (error) {
+        console.error("Error al guardar tiempo:", error);
+        alert("❌ No se pudo guardar: " + error.message);
+    } else {
+        console.log("✅ Tiempo guardado correctamente");
+        if (ms < globalBest) { showRecordNotice(); }
+        
+        input.value = ""; // Limpiar campo
+        await loadDataFromSupabase(); // Refrescar datos de la nube
+        renderAll(); // Redibujar tabla y podio
     }
-  }
+}
 
   function showRecordNotice() {
     const msg = document.getElementById("recordMessage");
@@ -331,13 +375,28 @@ async function checkUser() {
 
   async function removeLastLap(){
     const id = document.getElementById("driverSelect").value;
-    if(!id || !state.laps[id].length) return;
-    if(confirm("¿Eliminar el último tiempo?")) {
-      const lastLap = state.laps[id][0]; // Ya vienen ordenadas desc
-      const { error } = await _supabase.from('laps').delete().match({ driver_id: id, created_at: lastLap.ts });
-      if(!error) { await loadDataFromSupabase(); renderAll(); }
+    if(!id || !state.laps[id] || state.laps[id].length === 0) {
+        alert("No hay tiempos para eliminar.");
+        return;
     }
-  }
+
+    if(confirm("¿Eliminar el último tiempo registrado de este piloto?")) {
+        // Obtenemos el tiempo más reciente (el primero en el array ya que ordenamos por created_at desc)
+        const lastLap = state.laps[id][0]; 
+        
+        const { error } = await _supabase
+            .from('laps')
+            .delete()
+            .match({ driver_id: id, created_at: lastLap.ts });
+
+        if(error) {
+            alert("Error al eliminar: " + error.message);
+        } else {
+            await loadDataFromSupabase();
+            renderAll();
+        }
+    }
+}
 
   // --- RENDERING FUNCTIONS ---
   function formatMs(ms){
