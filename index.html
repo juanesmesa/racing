@@ -141,17 +141,17 @@
   <div class="actions">
     <button class="ghost" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
     <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">🔑 Activar Modo Admin</button>
-    <button class="ghost admin-only" onclick="document.getElementById('importInput').click()">Importar CSV</button>
+    <button class="ghost admin-only admin-hidden" onclick="document.getElementById('importInput').click()">Importar CSV</button>
     <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
-    <button class="ghost admin-only" onclick="exportRecords()">Exportar CSV</button>
-    <button class="danger admin-only" onclick="resetAll()">Reset Total</button>
+    <button class="ghost admin-only admin-hidden" onclick="exportRecords()">Exportar CSV</button>
+    <button class="danger admin-only admin-hidden" onclick="resetAll()">Reset Total</button>
   </div>
 </header>
 
 <div class="main-layout">
   <aside class="sidebar">
     <div class="card" style="height: 100%;">
-      <div class="admin-only">
+      <div class="admin-only admin-hidden">
         <label>Nombre Piloto</label>
         <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
         <button class="primary" onclick="addDriver()">Agregar Piloto</button>
@@ -165,7 +165,7 @@
       </div>
       <input type="hidden" id="driverSelect" value="">
 
-      <div class="admin-only">
+      <div class="admin-only admin-hidden">
         <label>Tiempo (MM:SS.mmm)</label>
         <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
         <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
@@ -241,12 +241,14 @@
   }
 
   async function checkUser() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    if (user) {
-      isAdmin = true;
-      updateAdminUI();
-    }
-  }
+  const { data: { user } } = await _supabase.auth.getUser();
+  
+  // Si existe un usuario, isAdmin es true. Si es null, isAdmin es false.
+  isAdmin = !!user; 
+  
+  // Ejecutamos la actualización de la UI inmediatamente
+  updateAdminUI();
+}
 
   async function loadDataFromSupabase() {
     const { data: drivers } = await _supabase.from('drivers').select('*');
