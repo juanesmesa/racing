@@ -41,6 +41,9 @@
       --live-timer-color: #000000;
     }
 
+    /* CLASE PARA OCULTAR ELEMENTOS DE ADMIN */
+    .admin-hidden { display: none !important; }
+
     * { box-sizing: border-box; }
     body {
       margin: 0; color: var(--text); font-family: var(--font-main); background: var(--bg);
@@ -64,16 +67,6 @@
     }
 
     .actions { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; white-space: nowrap; }
-
-    .font-switcher {
-      background: var(--input-bg); border: 1px solid var(--border2);
-      color: var(--text); padding: 10px 15px; border-radius: 8px; cursor: pointer;
-      font-family: 'Rajdhani', sans-serif; font-weight: 600; outline: none;
-      min-width: 220px; max-width: 240px; flex-shrink: 0;
-    }
-
-    header .font-switcher, header .actions button { margin-bottom: 0; }
-    .actions button { flex-shrink: 0; }
 
     .main-layout { display: grid; grid-template-columns: 380px 1fr; gap: 25px; padding: 20px; flex: 1; min-height: 0; }
     .sidebar { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
@@ -133,7 +126,6 @@
       .main-layout { grid-template-columns: 1fr; padding: 10px; }
       header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
       .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
-      .font-switcher { min-width: 100%; }
       .podium-container { grid-template-columns: 1fr; }
       .lbHeader, .lbRow { grid-template-columns: 40px 1fr 100px 80px; padding: 10px; font-size: 12px; }
       .cell:nth-child(4) { display: none; }
@@ -148,43 +140,40 @@
   <h1>🏁 LEADERBOARD 🏁</h1>
   <div class="actions">
     <button class="ghost" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
-    <!-- FONT SWITCHER 
-    <select class="font-switcher" onchange="document.body.style.fontFamily = this.value">
-      <option value="'Orbitron', sans-serif">Orbitron (Cyber)</option>
-      <option value="'Oxanium', sans-serif">Oxanium (Racing)</option>
-      <option value="'Genos', sans-serif">Genos (Modern)</option>
-      <option value="'Bruno Ace SC', sans-serif">Bruno Ace (Futurist)</option>
-      <option value="'Michroma', sans-serif">Michroma (Clean)</option>
-      <option value="'Sono', monospace">Sono (Monospace)</option>
-      <option value="'Rajdhani', sans-serif">Rajdhani (Tech)</option>
-      <option value="'Audiowide', sans-serif">Audiowide (Future)</option>
-      <option value="'Chakra Petch', sans-serif">Chakra (Drift)</option>
-    </select>
-    -->
-    <button class="ghost" onclick="document.getElementById('importInput').click()">Importar CSV</button>
+    <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">👁️ Ver como Espectador</button>
+    
+    <button class="ghost admin-only" onclick="document.getElementById('importInput').click()">Importar CSV</button>
     <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
-    <button class="ghost" onclick="exportRecords()">Exportar CSV</button>
-    <button class="danger" onclick="resetAll()">Reset Total</button>
+    <button class="ghost admin-only" onclick="exportRecords()">Exportar CSV</button>
+    <button class="danger admin-only" onclick="resetAll()">Reset Total</button>
   </div>
 </header>
 
 <div class="main-layout">
   <aside class="sidebar">
     <div class="card" style="height: 100%;">
-      <label>Nombre Piloto</label>
-      <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
-      <button class="primary" onclick="addDriver()">Agregar Piloto</button>
-      <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+      <div class="admin-only">
+        <label>Nombre Piloto</label>
+        <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
+        <button class="primary" onclick="addDriver()">Agregar Piloto</button>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+      </div>
+
       <label>Buscar Piloto</label>
       <div class="search-wrapper">
         <input id="pilotSearch" placeholder="Escribe para buscar..." oninput="filterDrivers(this.value)" autocomplete="off"/>
         <div id="autocompleteList" class="autocomplete-list"></div>
       </div>
       <input type="hidden" id="driverSelect" value="">
-      <label>Tiempo (MM:SS.mmm)</label>
-      <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
-      <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
-      <button class="danger" style="width:100%;" onclick="removeLastLap()">Eliminar Último Tiempo</button>
+
+      <div class="admin-only">
+        <label>Tiempo (MM:SS.mmm)</label>
+        <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
+        <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
+        <button class="danger" style="width:100%; margin-top: 5px;" onclick="removeLastLap()">Eliminar Último Tiempo</button>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+      </div>
+
       <div class="history-mini">
         <div id="driverStatus" class="status-msg"></div>
         <label>Historial Rápido</label>
@@ -226,6 +215,25 @@
   let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? { drivers: [], laps: {} };
   const podColors = ["#ffb700", "#00f2ff", "#ff00ea"];
   const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
+
+  // --- LÓGICA DE ADMINISTRACIÓN ---
+  let isAdmin = true;
+
+  function toggleAdminView() {
+    isAdmin = !isAdmin;
+    const adminElements = document.querySelectorAll('.admin-only');
+    const btn = document.getElementById('adminToggleBtn');
+
+    adminElements.forEach(el => {
+      if (!isAdmin) {
+        el.classList.add('admin-hidden');
+      } else {
+        el.classList.remove('admin-hidden');
+      }
+    });
+
+    btn.innerText = isAdmin ? '👁️ Ver como Espectador' : '🔑 Activar Modo Admin';
+  }
 
   function toggleTheme() {
     const html = document.documentElement;
@@ -345,7 +353,6 @@
   function renderMiniHistory(){
     const id = document.getElementById("driverSelect").value;
     const list = document.getElementById("miniHistoryList");
-    const statusDiv = document.getElementById("driverStatus");
     if(!id) { list.innerHTML = "Sin datos"; return; }
     const laps = state.laps[id];
     list.innerHTML = [...laps].reverse().slice(0,3).map(l => `
