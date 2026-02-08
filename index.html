@@ -29,25 +29,31 @@
     }
 
     [data-theme="light"] {
-      --bg: #f2f2f2;
-      --card-bg: #ffffff;
-      --header-bg: rgba(242, 242, 242, 0.9);
-      --input-bg: #e8e9eb;
-      --text: #1a1a1a;
-      --border: #d1d9e6;
-      --border2: #b8c2d1;
-      --live-timer-color: #000000;
-    }
+  /* LIGHT MODE - Soft Platinum / Smoke */
+  --bg: #d1d5db;               /* Fondo general: Un gris medio suave */
+  --card-bg: #e5e7eb;          /* Fondo de tarjetas: Un gris más claro para resaltar */
+  --header-bg: rgba(209, 213, 221, 0.9); /* Header a juego con el fondo */
+  --input-bg: #f3f4f6;         /* Inputs: Casi blancos para que se identifiquen rápido */
+  --text: #1f2937;             /* Texto: Un gris grafito muy oscuro (mejor que negro puro) */
+  --border: #9ca3af;           /* Bordes: Gris definido */
+  --border2: #6b7280;          /* Bordes de inputs: Más oscuros para dar profundidad */
+  --live-timer-color: #111827; /* Cronómetro: Negro azulado profundo */
+}
 
     .admin-hidden { display: none !important; }
 
     * { box-sizing: border-box; }
     body {
-      margin: 0; color: var(--text); font-family: var(--font-main); background: var(--bg);
-      background: radial-gradient(1200px 800px at 30% 10%, #14214f 0%, transparent 55%), var(--bg);
-      height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
+  margin: 0; 
+  color: var(--text); 
+  font-family: var(--font-main); 
+  background: var(--bg); /* Ahora solo usa el color sólido de tus variables */
+  height: 100vh; 
+  overflow: hidden; 
+  display: flex; 
+  flex-direction: column;
+  transition: background 0.3s ease, color 0.3s ease;
+}
 
     header {
       height: var(--header-h); padding: 0 30px;
@@ -112,7 +118,10 @@
     }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: var(--card-bg); border: 1px solid var(--border2); border-radius: 24px; width: 600px; padding: 30px; color: var(--text); }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--border2); border-radius: 24px; 
+  /* CAMBIO CLAVE: Ancho fluido con un máximo */
+width: 95%; max-width: 600px; padding: 25px; color: var(--text); /* Evita que sea más alto que la pantalla del móvil */max-height: 90vh; display: flex;flex-direction: column;
+}
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     .modal-list { overflow-y: auto; flex: 1; max-height: 400px; }
     .modal-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; margin-bottom: 10px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); }
@@ -129,6 +138,36 @@
       .cell:nth-child(4) { display: none; }
       #liveTime { font-size: 50px !important; }
     }
+
+
+    @media (max-width: 900px) {
+      body { overflow-y: auto; height: auto; }
+      .main-layout { grid-template-columns: 1fr; padding: 10px; }
+      header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
+       .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .podium-container { grid-template-columns: 1fr; }
+      .lbHeader, .lbRow { grid-template-columns: 40px 1fr 100px 80px; padding: 10px; font-size: 12px; }
+      .cell:nth-child(4) { display: none; }
+      #liveTime { font-size: 50px !important; }
+
+  .modal-content {
+    padding: 15px;
+    width: 92%;
+    border-radius: 18px;
+  } /* <-- Esta cierra .modal-content */
+
+  .modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .modal-item {
+    padding: 12px 15px;
+    font-size: 13px;
+  }
+} 
+
+
+
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -455,16 +494,24 @@ async function checkUser() {
   }
 
   function showDetails(id){
-    const d = state.drivers.find(x => x.id === id);
-    document.getElementById("modalTitle").innerText = d.name;
-    const times = [...state.laps[id]]; // Ya vienen desc de Supabase
-    document.getElementById("modalList").innerHTML = times.map((l, i) => `
-      <div class="modal-item">
-        <span>Vuelta ${times.length - i}</span>
-        <strong>${formatMs(l.time)}</strong>
-      </div>`).join("");
-    document.getElementById("historyModal").style.display = "flex";
-  }
+  const d = state.drivers.find(x => x.id === id);
+  document.getElementById("modalTitle").innerText = d.name;
+  
+  const times = [...state.laps[id]];
+  // Encontramos cuál es el tiempo más bajo (el récord personal)
+  const bestTime = times.length > 0 ? Math.min(...times.map(l => l.time)) : null;
+
+  document.getElementById("modalList").innerHTML = times.map((l, i) => {
+    const isBest = l.time === bestTime;
+    return `
+      <div class="modal-item" style="${isBest ? 'border-color: var(--accent); background: rgba(31, 111, 235, 0.05);' : ''}">
+        <span>Vuelta ${times.length - i} ${isBest ? '🏆' : ''}</span>
+        <strong style="${isBest ? 'color: var(--accent);' : ''}">${formatMs(l.time)}</strong>
+      </div>`;
+  }).join("");
+  
+  document.getElementById("historyModal").style.display = "flex";
+}
 
   function closeModal(){ document.getElementById("historyModal").style.display = "none"; }
 
