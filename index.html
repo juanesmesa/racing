@@ -28,16 +28,30 @@
       --live-timer-color: #00ff00;
     }
 
-    [data-theme="light"] {
-  /* LIGHT MODE - Soft Platinum / Smoke */
-  --bg: #949494;               /* Fondo general: Un gris medio suave */
-  --card-bg: #bdbdbe;          /* Fondo de tarjetas: Un gris más claro para resaltar */
-  --header-bg: rgba(209, 213, 221, 0.9); /* Header a juego con el fondo */
-  --input-bg: #f3f4f6;         /* Inputs: Casi blancos para que se identifiquen rápido */
-  --text: #1f2937;             /* Texto: Un gris grafito muy oscuro (mejor que negro puro) */
-  --border: #9ca3af;           /* Bordes: Gris definido */
-  --border2: #6b7280;          /* Bordes de inputs: Más oscuros para dar profundidad */
-  --live-timer-color: #111827; /* Cronómetro: Negro azulado profundo */
+   [data-theme="light"] {
+  /* Colores Base: Gris Humo / Platino */
+  --bg: #949494;               
+  --card-bg: #bdbdbe;          
+  --header-bg: rgba(148, 148, 148, 0.9); 
+  --input-bg: #f3f4f6;         
+  --text: #1f2937;             
+  --border: #7f8c8d;           
+  --border2: #4b5563;          
+  
+  /* NUEVO: Rojo Competición (Ferrari/Brembo style) */
+  --accent: #e62020; 
+  --live-timer-color: #111827; 
+}
+
+/* EFECTO EXTRA: Podios Metálicos en Modo Claro */
+[data-theme="light"] .podiumCard {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .podium-inner {
+  /* Un ligero brillo interno para simular metal */
+  background: linear-gradient(145deg, var(--card-bg), #d1d5db);
 }
 
     .admin-hidden { display: none !important; }
@@ -129,42 +143,56 @@ width: 95%; max-width: 600px; padding: 25px; color: var(--text); /* Evita que se
     .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
     
     @media (max-width: 900px) {
-      body { overflow-y: auto; height: auto; }
-      .main-layout { grid-template-columns: 1fr; padding: 10px; }
-      header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
-      .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
-      .podium-container { grid-template-columns: 1fr; }
-      .lbHeader, .lbRow { grid-template-columns: 40px 1fr 100px 80px; padding: 10px; font-size: 12px; }
-      .cell:nth-child(4) { display: none; }
-      #liveTime { font-size: 50px !important; }
-    }
+  /* 1. Liberar la altura total de la página */
+  body, html { 
+    overflow-y: auto !important; 
+    height: auto !important; 
+  }
 
+  /* 2. Layout fluido */
+  .main-layout { 
+    grid-template-columns: 1fr; 
+    padding: 10px; 
+    height: auto !important; 
+  }
 
-    @media (max-width: 900px) {
-      body { overflow-y: auto; height: auto; }
-      .main-layout { grid-template-columns: 1fr; padding: 10px; }
-      header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
-       .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
-      .podium-container { grid-template-columns: 1fr; }
-      .lbHeader, .lbRow { grid-template-columns: 40px 1fr 100px 80px; padding: 10px; font-size: 12px; }
-      .cell:nth-child(4) { display: none; }
-      #liveTime { font-size: 50px !important; }
+  header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
+  .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
 
+  /* 3. Podio Vertical: El 3er lugar aparecerá debajo */
+  .podium-container { 
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+  }
+
+  /* 4. SOLUCIÓN PARA SAMSUNG: Quitar el candado de altura a la tabla */
+  .content-area, .table-card, .table-scroll-area {
+    height: auto !important; 
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* 5. Ajuste de columnas para pantallas estrechas */
+  .lbHeader, .lbRow { 
+    grid-template-columns: 35px 1fr 85px 70px !important; 
+    padding: 10px; 
+    font-size: 11px; 
+  }
+  .cell:nth-child(4) { display: none; } /* Ocultamos 'Intentos' para ganar espacio */
+  
+  #liveTime { font-size: 50px !important; }
+
+  /* 6. Modal elástico */
   .modal-content {
     padding: 15px;
     width: 92%;
     border-radius: 18px;
-  } /* <-- Esta cierra .modal-content */
-
-  .modal-header h2 {
-    font-size: 1.4rem;
+    max-height: 85vh;
   }
-
-  .modal-item {
-    padding: 12px 15px;
-    font-size: 13px;
-  }
-} 
+  .modal-header h2 { font-size: 1.4rem; }
+  .modal-item { padding: 12px 15px; font-size: 13px; }
+}
 
 
 
