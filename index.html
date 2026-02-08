@@ -1,596 +1,1103 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Race Control - ORIÓN</title>
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/2822/2822628.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Oxanium:wght@400;600;800&family=Chakra+Petch:wght@400;600;700&family=Audiowide&family=Genos:wght@400;700;800&family=Bruno+Ace+SC&family=Michroma&family=Sono:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg: #070a0f;
-      --card-bg: rgba(15,23,34,0.85);
-      --header-bg: rgba(15,23,34,0.9);
-      --input-bg: rgba(0,0,0,0.5);
-      --text: #e7eef7;
-      --border: #1c2a3a;
-      --border2: #24374d;
-      --accent: #1f6feb;
-      --danger: #b42318;
-      --font-main: "Audiowide", sans-serif;
-      --header-h: 90px;
-      --grid-layout: 60px 250px 1fr 1fr 150px;
-      --live-timer-color: #00ff00;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Race Control - ORIÓN</title>
+    <link
+      rel="icon"
+      href="https://cdn-icons-png.flaticon.com/128/2822/2822628.png"
+      type="image/png"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Oxanium:wght@400;600;800&family=Chakra+Petch:wght@400;600;700&family=Audiowide&family=Genos:wght@400;700;800&family=Bruno+Ace+SC&family=Michroma&family=Sono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.cdnfonts.com/css/digital-7-mono"
+      rel="stylesheet"
+    />
 
-   [data-theme="light"] {
-  /* Colores Base: Gris Humo / Platino */
-  --bg: #949494;               
-  --card-bg: #bdbdbe;          
-  --header-bg: rgba(148, 148, 148, 0.9); 
-  --input-bg: #f3f4f6;         
-  --text: #1f2937;             
-  --border: #7f8c8d;           
-  --border2: #4b5563;          
-  
-  /* NUEVO: Rojo Competición (Ferrari/Brembo style) */
-  --accent: #e62020; 
-  --live-timer-color: #111827; 
-}
+    <style>
+      :root {
+        --bg: #070a0f;
+        --card-bg: rgba(15, 23, 34, 0.85);
+        --header-bg: rgba(15, 23, 34, 0.9);
+        --input-bg: rgba(0, 0, 0, 0.5);
+        --text: #e7eef7;
+        --border: #1c2a3a;
+        --border2: #24374d;
+        --accent: #1f6feb;
+        --danger: #b42318;
+        --font-main: "Audiowide", sans-serif;
+        --header-h: 90px;
+        --grid-layout: 60px 250px 1fr 1fr 150px;
+        --live-timer-color: #00ff00;
+      }
 
-/* EFECTO EXTRA: Podios Metálicos en Modo Claro */
-[data-theme="light"] .podiumCard {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
+      [data-theme="light"] {
+        /* Colores Base: Gris Humo / Platino */
+        --bg: #949494;
+        --card-bg: #bdbdbe;
+        --header-bg: rgba(148, 148, 148, 0.9);
+        --input-bg: #f3f4f6;
+        --text: #1f2937;
+        --border: #7f8c8d;
+        --border2: #4b5563;
 
-[data-theme="light"] .podium-inner {
-  /* Un ligero brillo interno para simular metal */
-  background: linear-gradient(145deg, var(--card-bg), #d1d5db);
-}
+        /* NUEVO: Rojo Competición (Ferrari/Brembo style) */
+        --accent: #e62020;
+        --live-timer-color: #111827;
+      }
 
-    .admin-hidden { display: none !important; }
+      /* EFECTO EXTRA: Podios Metálicos en Modo Claro */
+      [data-theme="light"] .podiumCard {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
 
-    * { box-sizing: border-box; }
-    body {
-  margin: 0; 
-  color: var(--text); 
-  font-family: var(--font-main); 
-  background: var(--bg); /* Ahora solo usa el color sólido de tus variables */
-  height: 100vh; 
-  overflow: hidden; 
-  display: flex; 
-  flex-direction: column;
-  transition: background 0.3s ease, color 0.3s ease;
-}
+      [data-theme="light"] .podium-inner {
+        /* Un ligero brillo interno para simular metal */
+        background: linear-gradient(145deg, var(--card-bg), #d1d5db);
+      }
 
-    header {
-      height: var(--header-h); padding: 0 30px;
-      background: var(--header-bg); border-bottom: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-      backdrop-filter: blur(10px); z-index: 100; flex-shrink: 0;
-    }
+      .admin-hidden {
+        display: none !important;
+      }
 
-    header h1 {
-      margin: 0; font-size: 40px; font-weight: 900; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--text);
-      text-shadow: 0 0 10px rgba(31, 111, 235, 0.8);
-      font-family: inherit; white-space: nowrap;
-    }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: var(--font-main);
+        background: var(
+          --bg
+        ); /* Ahora solo usa el color sólido de tus variables */
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+      }
 
-    .actions { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; white-space: nowrap; }
+      header {
+        height: var(--header-h);
+        padding: 0 30px;
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        z-index: 100;
+        flex-shrink: 0;
+      }
 
-    .main-layout { display: grid; grid-template-columns: 380px 1fr; gap: 25px; padding: 20px; flex: 1; min-height: 0; }
-    .sidebar { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
-    .content-area { display: flex; flex-direction: column; gap: 20px; min-height: 0; overflow: hidden; }
+      header h1 {
+        margin: 0;
+        font-size: 40px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--text);
+        text-shadow: 0 0 10px rgba(31, 111, 235, 0.8);
+        font-family: inherit;
+        white-space: nowrap;
+      }
 
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); overflow: hidden; }
-    label { font-size: 11px; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
-    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border2); color: var(--text); font-family: inherit; font-size: 16px; border-radius: 8px; outline: none; }
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
 
-    .search-wrapper { position: relative; width: 100%; }
-    .autocomplete-list {
-      position: absolute; top: 100%; left: 0; right: 0;
-      background: var(--card-bg); border: 1px solid var(--border2);
-      max-height: 200px; overflow-y: auto; z-index: 1000;
-      border-radius: 0 0 8px 8px; display: none;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5); margin-top: -15px;
-    }
-    .autocomplete-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border); color: var(--text); }
-    .autocomplete-item:hover { background: var(--accent); color: white; }
+      .main-layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 25px;
+        padding: 20px;
+        flex: 1;
+        min-height: 0;
+      }
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-height: 0;
+      }
+      .content-area {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-height: 0;
+        overflow: hidden;
+      }
 
-    button { padding: 12px 18px; cursor: pointer; border-radius: 8px; font-weight: bold; font-family: inherit; text-transform: uppercase; border: none; transition: .2s; }
-    button.primary { background: var(--accent); color: #fff; width: 100%; margin-bottom: 5px; }
-    button.ghost { background: var(--input-bg); color: var(--text); border: 1px solid var(--border2); }
-    button.danger { background: var(--danger); color: #fff; }
-    button.btn-details { padding: 6px 12px; font-size: 10px; background: var(--accent); color: #fff; }
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+      }
+      label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--accent);
+        letter-spacing: 1.5px;
+        margin-bottom: 5px;
+        display: block;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        background: var(--input-bg);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 16px;
+        border-radius: 8px;
+        outline: none;
+      }
 
-    .podium-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex-shrink: 0; }
-    .podiumCard { position: relative; border-radius: 24px; padding: 4px; background: var(--card-color); min-height: 180px; display: flex; }
-    .podium-inner { width: 100%; height: 100%; background: var(--card-bg); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-    .puesto-badge { background: var(--card-color); color: #000; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-    .puesto-numero-bg { font-size: 45px; font-weight: 900; line-height: 1; margin-top: -5px; color: var(--card-color); opacity: 0.80; }
-    .pilot-name-big { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-    .time-pill { background: var(--input-bg); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; }
-    .time-pill strong { font-size: 18px; color: var(--card-color); font-family: inherit; }
+      .search-wrapper {
+        position: relative;
+        width: 100%;
+      }
+      .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        border: 1px solid var(--border2);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        border-radius: 0 0 8px 8px;
+        display: none;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        margin-top: -15px;
+      }
+      .autocomplete-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+      .autocomplete-item:hover {
+        background: var(--accent);
+        color: white;
+      }
 
-    .table-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .lbHeader { display: grid; grid-template-columns: var(--grid-layout); padding: 18px 25px; color: var(--accent); font-weight: 900; font-size: 14px; border-bottom: 2px solid var(--accent); background: var(--header-bg); text-transform: uppercase; flex-shrink: 0; }
-    .table-scroll-area { flex: 1; overflow-y: auto; min-height: 0; }
-    .lbRow { display: grid; grid-template-columns: var(--grid-layout); align-items: center; padding: 16px 25px; margin-top: 8px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
-    .cell.center { text-align: center; } .cell.right { text-align: right; }
+      button {
+        padding: 12px 18px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: bold;
+        font-family: inherit;
+        text-transform: uppercase;
+        border: none;
+        transition: 0.2s;
+      }
+      button.primary {
+        background: var(--accent);
+        color: #fff;
+        width: 100%;
+        margin-bottom: 5px;
+      }
+      button.ghost {
+        background: var(--input-bg);
+        color: var(--text);
+        border: 1px solid var(--border2);
+      }
+      button.danger {
+        background: var(--danger);
+        color: #fff;
+      }
+      button.btn-details {
+        padding: 6px 12px;
+        font-size: 10px;
+        background: var(--accent);
+        color: #fff;
+      }
 
-    #liveTime {
-      font-size: 80px; font-weight: 900; color: var(--live-timer-color); 
-      font-family: 'Digital-7 Mono', sans-serif; text-shadow: 0 0 15px rgba(0,0,0,0.1); line-height: 1;
-      transition: color 0.3s;
-    }
+      .podium-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        flex-shrink: 0;
+      }
+      .podiumCard {
+        position: relative;
+        border-radius: 24px;
+        padding: 4px;
+        background: var(--card-color);
+        min-height: 180px;
+        display: flex;
+      }
+      .podium-inner {
+        width: 100%;
+        height: 100%;
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .puesto-badge {
+        background: var(--card-color);
+        color: #000;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+      }
+      .puesto-numero-bg {
+        font-size: 45px;
+        font-weight: 900;
+        line-height: 1;
+        margin-top: -5px;
+        color: var(--card-color);
+        opacity: 0.8;
+      }
+      .pilot-name-big {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .time-pill {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        padding: 8px 15px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .time-pill strong {
+        font-size: 18px;
+        color: var(--card-color);
+        font-family: inherit;
+      }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: var(--card-bg); border: 1px solid var(--border2); border-radius: 24px; 
-  /* CAMBIO CLAVE: Ancho fluido con un máximo */
-width: 95%; max-width: 600px; padding: 25px; color: var(--text); /* Evita que sea más alto que la pantalla del móvil */max-height: 90vh; display: flex;flex-direction: column;
-}
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .modal-list { overflow-y: auto; flex: 1; max-height: 400px; }
-    .modal-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; margin-bottom: 10px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); }
-    .history-mini { flex: 1; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 15px; overflow-y: auto; }
-    .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    
-    @media (max-width: 900px) {
-  /* 1. Liberar la altura total de la página */
-  body, html { 
-    overflow-y: auto !important; 
-    height: auto !important; 
-  }
+      .table-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .lbHeader {
+        display: grid;
+        grid-template-columns: var(--grid-layout);
+        padding: 18px 25px;
+        color: var(--accent);
+        font-weight: 900;
+        font-size: 14px;
+        border-bottom: 2px solid var(--accent);
+        background: var(--header-bg);
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      .table-scroll-area {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+      }
+      .lbRow {
+        display: grid;
+        grid-template-columns: var(--grid-layout);
+        align-items: center;
+        padding: 16px 25px;
+        margin-top: 8px;
+        border-radius: 12px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .cell.center {
+        text-align: center;
+      }
+      .cell.right {
+        text-align: right;
+      }
 
-  /* 2. Layout fluido */
-  .main-layout { 
-    grid-template-columns: 1fr; 
-    padding: 10px; 
-    height: auto !important; 
-  }
+      #liveTime {
+        font-size: 80px;
+        font-weight: 900;
+        color: var(--live-timer-color);
+        font-family: "Digital-7 Mono", sans-serif;
+        text-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        line-height: 1;
+        transition: color 0.3s;
+      }
 
-  header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
-  .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border2);
+        border-radius: 24px;
+        /* CAMBIO CLAVE: Ancho fluido con un máximo */
+        width: 95%;
+        max-width: 600px;
+        padding: 25px;
+        color: var(
+          --text
+        ); /* Evita que sea más alto que la pantalla del móvil */
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      .modal-list {
+        overflow-y: auto;
+        flex: 1;
+        max-height: 400px;
+      }
+      .modal-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        border-radius: 12px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+      }
+      .history-mini {
+        flex: 1;
+        margin-top: 10px;
+        border-top: 1px solid var(--border);
+        padding-top: 15px;
+        overflow-y: auto;
+      }
+      .hist-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
 
-  /* 3. Podio Vertical: El 3er lugar aparecerá debajo */
-  .podium-container { 
-    grid-template-columns: 1fr; 
-    gap: 15px; 
-  }
-
-  /* 4. SOLUCIÓN PARA SAMSUNG: Quitar el candado de altura a la tabla */
-  .content-area, .table-card, .table-scroll-area {
-    height: auto !important; 
-    max-height: none !important;
-    overflow: visible !important;
-    display: block !important;
-  }
-
-  /* 5. Ajuste de columnas para pantallas estrechas */
-  .lbHeader, .lbRow { 
-    grid-template-columns: 35px 1fr 85px 70px !important; 
-    padding: 10px; 
-    font-size: 11px; 
-  }
-  .cell:nth-child(4) { display: none; } /* Ocultamos 'Intentos' para ganar espacio */
-  
-  #liveTime { font-size: 50px !important; }
-
-  /* 6. Modal elástico */
-  .modal-content {
-    padding: 15px;
-    width: 92%;
-    border-radius: 18px;
-    max-height: 85vh;
-  }
-  .modal-header h2 { font-size: 1.4rem; }
-  .modal-item { padding: 12px 15px; font-size: 13px; }
-}
-
-
-
-  </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-
-<body>
-
-<header>
-  <h1>🏁 LEADERBOARD 🏁</h1>
-  <div class="actions">
-    <button class="ghost" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
-    <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">🔑 Activar Modo Admin</button>
-    <button class="ghost admin-only admin-hidden" onclick="document.getElementById('importInput').click()">Importar CSV</button>
-    <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
-    <button class="ghost admin-only admin-hidden" onclick="exportRecords()">Exportar CSV</button>
-    <button class="danger admin-only admin-hidden" onclick="resetAll()">Reset Total</button>
-  </div>
-</header>
-
-<div class="main-layout">
-  <aside class="sidebar">
-    <div class="card" style="height: 100%;">
-      <div class="admin-only admin-hidden">
-        <label>Nombre Piloto</label>
-        <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
-        <button class="primary" onclick="addDriver()">Agregar Piloto</button>
-        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-      </div>
-
-      <label>Buscar Piloto</label>
-      <div class="search-wrapper">
-        <input id="pilotSearch" placeholder="Escribe para buscar..." oninput="filterDrivers(this.value)" autocomplete="off"/>
-        <div id="autocompleteList" class="autocomplete-list"></div>
-      </div>
-      <input type="hidden" id="driverSelect" value="">
-
-      <div class="admin-only admin-hidden">
-        <label>Tiempo (MM:SS.mmm)</label>
-        <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
-        <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
-        <button class="danger" style="width:100%; margin-top: 5px;" onclick="removeLastLap()">Eliminar Último Tiempo</button>
-        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-      </div>
-
-      <div class="history-mini">
-        <div id="driverStatus" class="status-msg"></div>
-        <label>Historial Rápido</label>
-        <div id="miniHistoryList"></div>
-      </div>
-    </div>
-  </aside>
-
-  <main class="content-area">
-    <section class="podium-container" id="podiumTop3"></section>
-    <section class="card table-card">
-      <div style="background: rgba(31, 111, 235, 0.1); border: 1px solid var(--accent); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px;">
-        <label style="color: var(--accent); font-weight: bold; letter-spacing: 2px;">CRONÓMETRO EN VIVO</label>
-        <div id="liveTime">00:00.00</div>
-        <div id="recordMessage" style="color: #ffb700; font-size: 20px; font-weight: 800; text-transform: uppercase; margin-top: 10px; opacity: 0; transition: opacity 0.5s;">
-          ¡NUEVO RÉCORD DE PISTA! 🏆
-        </div>
-      </div>
-      <div class="lbHeader">
-        <div class="cell">#</div><div class="cell">Piloto</div><div class="cell center">Mejor Tiempo</div><div class="cell center">Intentos</div><div class="cell right">Tiempos</div>
-      </div>
-      <div class="table-scroll-area"><div id="fullLeaderboard"></div></div>
-    </section>
-  </main>
-</div>
-
-<div id="historyModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 id="modalTitle">PILOTO</h2>
-      <button class="btn-details" style="background:var(--danger)" onclick="closeModal()">CERRAR</button>
-    </div>
-    <div id="modalList" class="modal-list"></div>
-  </div>
-</div>
-
-<div id="loginModal" class="modal-overlay" onclick="if(event.target === this) closeLoginModal()">
-  <div class="modal-content" style="width: 400px;">
-    <div class="modal-header">
-      <h2>ACCESO ADMIN</h2>
-    </div>
-    <label>Email</label>
-    <input type="email" id="loginEmail" placeholder="tu@email.com">
-    <label>Contraseña</label>
-    <input type="password" id="loginPassword" placeholder="••••••••">
-    <button class="primary" onclick="handleLogin()">INICIAR SESIÓN</button>
-    <button class="ghost" style="width: 100%; margin-top: 10px;" onclick="closeLoginModal()">CANCELAR</button>
-  </div>
-</div>
-
-<script>
-  // 1. CONFIGURACIÓN SUPABASE
-  const SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ";
-  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  let state = { drivers: [], laps: {} };
-  const podColors = ["#FFC107", "#C0C0C0", "#CD7F32"];
-  const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
-  let isAdmin = false;
-
-  async function init() {
-    await checkUser();
-    await loadDataFromSupabase();
-    renderAll();
-  }
-
-
-  // Validar y formatear la entrada de tiempo mientras el usuario escribe
-document.getElementById("lapTime").addEventListener("input", e => {
-    // Eliminar todo lo que NO sea un número
-    let v = e.target.value.replace(/\D/g, ''); 
-    
-    // Aplicar el formato MM:SS.mmm dinámicamente
-    if (v.length > 4) {
-        v = v.slice(0, 2) + ":" + v.slice(2, 4) + "." + v.slice(4, 7);
-    } else if (v.length > 2) {
-        v = v.slice(0, 2) + ":" + v.slice(2);
-    }
-    
-    e.target.value = v;
-});
-
-async function checkUser() {
-  const { data: { user } } = await _supabase.auth.getUser();
-  
-  // Si existe un usuario, isAdmin es true. Si es null, isAdmin es false.
-  isAdmin = !!user; 
-  
-  // Ejecutamos la actualización de la UI inmediatamente
-  updateAdminUI();
-}
-
-  async function loadDataFromSupabase() {
-    const { data: drivers } = await _supabase.from('drivers').select('*');
-    const { data: laps } = await _supabase.from('laps').select('*').order('created_at', { ascending: false });
-    
-    state.drivers = drivers || [];
-    state.laps = {};
-    state.drivers.forEach(d => state.laps[d.id] = []);
-    
-    if (laps) {
-      laps.forEach(l => {
-        if (state.laps[l.driver_id]) {
-          state.laps[l.driver_id].push({ time: l.time_ms, ts: l.created_at });
+      @media (max-width: 900px) {
+        header h1 {
+          font-size: 28px !important; /* Reducimos de 40px a 28px */
+          white-space: normal !important; /* Permite que se divida en dos líneas si es necesario */
+          text-align: center; /* Si se divide, que quede centrado */
+          line-height: 1.2; /* Un poco de aire entre líneas */
         }
+
+        /* 1. Liberar la altura total de la página */
+        body,
+        html {
+          overflow-y: auto !important;
+          height: auto !important;
+        }
+
+        /* 2. Layout fluido */
+        .main-layout {
+          grid-template-columns: 1fr;
+          padding: 10px;
+          height: auto !important;
+        }
+
+        header {
+          height: auto;
+          padding: 15px;
+          flex-direction: column;
+          gap: 15px;
+        }
+        .actions {
+          width: 100%;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        /* 3. Podio Vertical: El 3er lugar aparecerá debajo */
+        .podium-container {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        /* 4. SOLUCIÓN PARA SAMSUNG: Quitar el candado de altura a la tabla */
+        .content-area,
+        .table-card,
+        .table-scroll-area {
+          height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
+          display: block !important;
+        }
+
+        /* 5. Ajuste de columnas para pantallas estrechas */
+        .lbHeader,
+        .lbRow {
+          grid-template-columns: 35px 1fr 85px 70px !important;
+          padding: 10px;
+          font-size: 11px;
+        }
+        .cell:nth-child(4) {
+          display: none;
+        } /* Ocultamos 'Intentos' para ganar espacio */
+
+        #liveTime {
+          font-size: 50px !important;
+        }
+
+        /* 6. Modal elástico */
+        .modal-content {
+          padding: 15px;
+          width: 92%;
+          border-radius: 18px;
+          max-height: 85vh;
+        }
+        .modal-header h2 {
+          font-size: 1.4rem;
+        }
+        .modal-item {
+          padding: 12px 15px;
+          font-size: 13px;
+        }
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+
+  <body>
+    <header>
+      <h1>🏁 LEADERBOARD 🏁</h1>
+      <div class="actions">
+        <button class="ghost" onclick="toggleTheme()" id="themeBtn">
+          ☀️ DÍA
+        </button>
+        <button
+          class="ghost"
+          onclick="toggleAdminView()"
+          id="adminToggleBtn"
+          style="border-color: var(--accent); color: var(--accent)"
+        >
+          🔑 Admin
+        </button>
+        <button
+          class="ghost admin-only admin-hidden"
+          onclick="document.getElementById('importInput').click()"
+        >
+          Importar CSV
+        </button>
+        <input
+          type="file"
+          id="importInput"
+          style="display: none"
+          accept=".csv"
+          onchange="importCSV(event)"
+        />
+        <button class="ghost admin-only admin-hidden" onclick="exportRecords()">
+          Exportar CSV
+        </button>
+        <button class="danger admin-only admin-hidden" onclick="resetAll()">
+          Reset Total
+        </button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <div class="card" style="height: 100%">
+          <div class="admin-only admin-hidden">
+            <label>Nombre Piloto</label>
+            <input
+              id="pilotName"
+              placeholder="Nombre"
+              onkeydown="if (event.key === 'Enter') addDriver();"
+            />
+            <button class="primary" onclick="addDriver()">
+              Agregar Piloto
+            </button>
+            <hr
+              style="
+                border: 0;
+                border-top: 1px solid var(--border);
+                margin: 20px 0;
+              "
+            />
+          </div>
+
+          <label>Buscar Piloto</label>
+          <div class="search-wrapper">
+            <input
+              id="pilotSearch"
+              placeholder="Escribe para buscar..."
+              oninput="filterDrivers(this.value)"
+              autocomplete="off"
+            />
+            <div id="autocompleteList" class="autocomplete-list"></div>
+          </div>
+          <input type="hidden" id="driverSelect" value="" />
+
+          <div class="admin-only admin-hidden">
+            <label>Tiempo (MM:SS.mmm)</label>
+            <input
+              id="lapTime"
+              placeholder="00:00.000"
+              onkeydown="if (event.key === 'Enter') saveLap();"
+            />
+            <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
+            <button
+              class="danger"
+              style="width: 100%; margin-top: 5px"
+              onclick="removeLastLap()"
+            >
+              Eliminar Último Tiempo
+            </button>
+            <hr
+              style="
+                border: 0;
+                border-top: 1px solid var(--border);
+                margin: 20px 0;
+              "
+            />
+          </div>
+
+          <div class="history-mini">
+            <div id="driverStatus" class="status-msg"></div>
+            <label>Historial Rápido</label>
+            <div id="miniHistoryList"></div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content-area">
+        <section class="podium-container" id="podiumTop3"></section>
+        <section class="card table-card">
+          <div
+            style="
+              background: rgba(31, 111, 235, 0.1);
+              border: 1px solid var(--accent);
+              border-radius: 12px;
+              padding: 25px;
+              text-align: center;
+              margin-bottom: 20px;
+            "
+          >
+            <label
+              style="
+                color: var(--accent);
+                font-weight: bold;
+                letter-spacing: 2px;
+              "
+              >CRONÓMETRO EN VIVO</label
+            >
+            <div id="liveTime">00:00.00</div>
+            <div
+              id="recordMessage"
+              style="
+                color: #ffb700;
+                font-size: 20px;
+                font-weight: 800;
+                text-transform: uppercase;
+                margin-top: 10px;
+                opacity: 0;
+                transition: opacity 0.5s;
+              "
+            >
+              ¡NUEVO RÉCORD DE PISTA! 🏆
+            </div>
+          </div>
+          <div class="lbHeader">
+            <div class="cell">#</div>
+            <div class="cell">Piloto</div>
+            <div class="cell center">Mejor Tiempo</div>
+            <div class="cell center">Intentos</div>
+            <div class="cell right">Tiempos</div>
+          </div>
+          <div class="table-scroll-area"><div id="fullLeaderboard"></div></div>
+        </section>
+      </main>
+    </div>
+
+    <div
+      id="historyModal"
+      class="modal-overlay"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">PILOTO</h2>
+          <button
+            class="btn-details"
+            style="background: var(--danger)"
+            onclick="closeModal()"
+          >
+            CERRAR
+          </button>
+        </div>
+        <div id="modalList" class="modal-list"></div>
+      </div>
+    </div>
+
+    <div
+      id="loginModal"
+      class="modal-overlay"
+      onclick="if (event.target === this) closeLoginModal();"
+    >
+      <div class="modal-content" style="width: 400px">
+        <div class="modal-header">
+          <h2>ACCESO ADMIN</h2>
+        </div>
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="tu@email.com" />
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+        <button class="primary" onclick="handleLogin()">INICIAR SESIÓN</button>
+        <button
+          class="ghost"
+          style="width: 100%; margin-top: 10px"
+          onclick="closeLoginModal()"
+        >
+          CANCELAR
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // 1. CONFIGURACIÓN SUPABASE
+      const SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ";
+      const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let state = { drivers: [], laps: {} };
+      const podColors = ["#FFC107", "#C0C0C0", "#CD7F32"];
+      const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
+      let isAdmin = false;
+
+      async function init() {
+        await checkUser();
+        await loadDataFromSupabase();
+        renderAll();
+      }
+
+      // Validar y formatear la entrada de tiempo mientras el usuario escribe
+      document.getElementById("lapTime").addEventListener("input", (e) => {
+        // Eliminar todo lo que NO sea un número
+        let v = e.target.value.replace(/\D/g, "");
+
+        // Aplicar el formato MM:SS.mmm dinámicamente
+        if (v.length > 4) {
+          v = v.slice(0, 2) + ":" + v.slice(2, 4) + "." + v.slice(4, 7);
+        } else if (v.length > 2) {
+          v = v.slice(0, 2) + ":" + v.slice(2);
+        }
+
+        e.target.value = v;
       });
-    }
-  }
 
-  // AUTH LOGIC
-  function toggleAdminView() {
-    if (!isAdmin) { document.getElementById('loginModal').style.display = 'flex'; } 
-    else { handleLogout(); }
-  }
+      async function checkUser() {
+        const {
+          data: { user },
+        } = await _supabase.auth.getUser();
 
-  async function handleLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-    if (error) { alert("Error: " + error.message); } 
-    else { isAdmin = true; closeLoginModal(); updateAdminUI(); }
-  }
+        // Si existe un usuario, isAdmin es true. Si es null, isAdmin es false.
+        isAdmin = !!user;
 
-  async function handleLogout() {
-    await _supabase.auth.signOut();
-    isAdmin = false;
-    updateAdminUI();
-  }
+        // Ejecutamos la actualización de la UI inmediatamente
+        updateAdminUI();
+      }
 
-  function updateAdminUI() {
-    const adminElements = document.querySelectorAll('.admin-only');
-    const btn = document.getElementById('adminToggleBtn');
-    adminElements.forEach(el => isAdmin ? el.classList.remove('admin-hidden') : el.classList.add('admin-hidden'));
-    btn.innerText = isAdmin ? '🔒 Cerrar Sesión' : '🔑 Activar Modo Admin';
-  }
+      async function loadDataFromSupabase() {
+        const { data: drivers } = await _supabase.from("drivers").select("*");
+        const { data: laps } = await _supabase
+          .from("laps")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-  function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+        state.drivers = drivers || [];
+        state.laps = {};
+        state.drivers.forEach((d) => (state.laps[d.id] = []));
 
-  // DATA LOGIC
-  async function addDriver() {
-    const input = document.getElementById("pilotName");
-    if(!input.value.trim()) return;
-    const { data, error } = await _supabase.from('drivers').insert([{ name: input.value.trim() }]).select();
-    if (!error) { await loadDataFromSupabase(); input.value = ""; renderAll(); }
-  }
+        if (laps) {
+          laps.forEach((l) => {
+            if (state.laps[l.driver_id]) {
+              state.laps[l.driver_id].push({
+                time: l.time_ms,
+                ts: l.created_at,
+              });
+            }
+          });
+        }
+      }
 
-  async function saveLap() {
-    const input = document.getElementById("lapTime");
-    const id = document.getElementById("driverSelect").value; // Este es el UUID del piloto
-    const timeValue = input.value;
+      // AUTH LOGIC
+      function toggleAdminView() {
+        if (!isAdmin) {
+          document.getElementById("loginModal").style.display = "flex";
+        } else {
+          handleLogout();
+        }
+      }
 
-    // 1. Validar que tengamos un piloto seleccionado
-    if (!id) {
-        alert("⚠️ Por favor, busca y selecciona un piloto primero.");
-        return;
-    }
+      async function handleLogin() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const { data, error } = await _supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          alert("Error: " + error.message);
+        } else {
+          isAdmin = true;
+          closeLoginModal();
+          updateAdminUI();
+        }
+      }
 
-    // 2. Validar formato estricto MM:SS.mmm
-    const parts = timeValue.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
-    if (!parts) {
-        alert("⚠️ Formato de tiempo inválido. Usa 00:00.000");
-        return;
-    }
+      async function handleLogout() {
+        await _supabase.auth.signOut();
+        isAdmin = false;
+        updateAdminUI();
+      }
 
-    // Calcular milisegundos
-    const ms = (parseInt(parts[1]) * 60000) + (parseInt(parts[2]) * 1000) + parseInt(parts[3].padEnd(3, '0'));
+      function updateAdminUI() {
+        const adminElements = document.querySelectorAll(".admin-only");
+        const btn = document.getElementById("adminToggleBtn");
+        adminElements.forEach((el) =>
+          isAdmin
+            ? el.classList.remove("admin-hidden")
+            : el.classList.add("admin-hidden"),
+        );
+        btn.innerText = isAdmin ? "🔒 Cerrar Sesión" : "🔑 Admin";
+      }
 
-    // 3. Obtener el mejor tiempo actual para el mensaje de récord
-    const allTimes = Object.values(state.laps).flat().map(l => l.time);
-    const globalBest = allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
+      function closeLoginModal() {
+        document.getElementById("loginModal").style.display = "none";
+      }
 
-    // 4. Guardar en Supabase
-    const { data, error } = await _supabase
-        .from('laps')
-        .insert([{ 
-            driver_id: id, 
-            time_ms: ms 
-        }])
-        .select();
+      // DATA LOGIC
+      async function addDriver() {
+        const input = document.getElementById("pilotName");
+        if (!input.value.trim()) return;
+        const { data, error } = await _supabase
+          .from("drivers")
+          .insert([{ name: input.value.trim() }])
+          .select();
+        if (!error) {
+          await loadDataFromSupabase();
+          input.value = "";
+          renderAll();
+        }
+      }
 
-    if (error) {
-        console.error("Error al guardar tiempo:", error);
-        alert("❌ No se pudo guardar: " + error.message);
-    } else {
-        console.log("✅ Tiempo guardado correctamente");
-        if (ms < globalBest) { showRecordNotice(); }
-        
-        input.value = ""; // Limpiar campo
-        await loadDataFromSupabase(); // Refrescar datos de la nube
-        renderAll(); // Redibujar tabla y podio
-    }
-}
+      async function saveLap() {
+        const input = document.getElementById("lapTime");
+        const id = document.getElementById("driverSelect").value; // Este es el UUID del piloto
+        const timeValue = input.value;
 
-  function showRecordNotice() {
-    const msg = document.getElementById("recordMessage");
-    msg.style.opacity = "1";
-    setTimeout(() => { msg.style.opacity = "0"; }, 5000);
-  }
+        // 1. Validar que tengamos un piloto seleccionado
+        if (!id) {
+          alert("⚠️ Por favor, busca y selecciona un piloto primero.");
+          return;
+        }
 
-  async function removeLastLap(){
-    const id = document.getElementById("driverSelect").value;
-    if(!id || !state.laps[id] || state.laps[id].length === 0) {
-        alert("No hay tiempos para eliminar.");
-        return;
-    }
+        // 2. Validar formato estricto MM:SS.mmm
+        const parts = timeValue.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
+        if (!parts) {
+          alert("⚠️ Formato de tiempo inválido. Usa 00:00.000");
+          return;
+        }
 
-    if(confirm("¿Eliminar el último tiempo registrado de este piloto?")) {
-        // Obtenemos el tiempo más reciente (el primero en el array ya que ordenamos por created_at desc)
-        const lastLap = state.laps[id][0]; 
-        
-        const { error } = await _supabase
-            .from('laps')
+        // Calcular milisegundos
+        const ms =
+          parseInt(parts[1]) * 60000 +
+          parseInt(parts[2]) * 1000 +
+          parseInt(parts[3].padEnd(3, "0"));
+
+        // 3. Obtener el mejor tiempo actual para el mensaje de récord
+        const allTimes = Object.values(state.laps)
+          .flat()
+          .map((l) => l.time);
+        const globalBest =
+          allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
+
+        // 4. Guardar en Supabase
+        const { data, error } = await _supabase
+          .from("laps")
+          .insert([
+            {
+              driver_id: id,
+              time_ms: ms,
+            },
+          ])
+          .select();
+
+        if (error) {
+          console.error("Error al guardar tiempo:", error);
+          alert("❌ No se pudo guardar: " + error.message);
+        } else {
+          console.log("✅ Tiempo guardado correctamente");
+          if (ms < globalBest) {
+            showRecordNotice();
+          }
+
+          input.value = ""; // Limpiar campo
+          await loadDataFromSupabase(); // Refrescar datos de la nube
+          renderAll(); // Redibujar tabla y podio
+        }
+      }
+
+      function showRecordNotice() {
+        const msg = document.getElementById("recordMessage");
+        msg.style.opacity = "1";
+        setTimeout(() => {
+          msg.style.opacity = "0";
+        }, 5000);
+      }
+
+      async function removeLastLap() {
+        const id = document.getElementById("driverSelect").value;
+        if (!id || !state.laps[id] || state.laps[id].length === 0) {
+          alert("No hay tiempos para eliminar.");
+          return;
+        }
+
+        if (confirm("¿Eliminar el último tiempo registrado de este piloto?")) {
+          // Obtenemos el tiempo más reciente (el primero en el array ya que ordenamos por created_at desc)
+          const lastLap = state.laps[id][0];
+
+          const { error } = await _supabase
+            .from("laps")
             .delete()
             .match({ driver_id: id, created_at: lastLap.ts });
 
-        if(error) {
+          if (error) {
             alert("Error al eliminar: " + error.message);
-        } else {
+          } else {
             await loadDataFromSupabase();
             renderAll();
+          }
         }
-    }
-}
+      }
 
-  // --- RENDERING FUNCTIONS ---
-  function formatMs(ms){
-    const m = Math.floor(ms / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    const x = ms % 1000;
-    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
-  }
+      // --- RENDERING FUNCTIONS ---
+      function formatMs(ms) {
+        const m = Math.floor(ms / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        const x = ms % 1000;
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(x).padStart(3, "0")}`;
+      }
 
-  function filterDrivers(val) {
-    const list = document.getElementById("autocompleteList");
-    if (!val) { list.style.display = "none"; return; }
-    const matches = state.drivers.filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
-    if (matches.length > 0) {
-      list.innerHTML = matches.map(d => `<div class="autocomplete-item" onclick="selectPilot('${d.id}', '${d.name}')">${d.name}</div>`).join("");
-      list.style.display = "block";
-    } else { list.style.display = "none"; }
-  }
+      function filterDrivers(val) {
+        const list = document.getElementById("autocompleteList");
+        if (!val) {
+          list.style.display = "none";
+          return;
+        }
+        const matches = state.drivers.filter((d) =>
+          d.name.toLowerCase().includes(val.toLowerCase()),
+        );
+        if (matches.length > 0) {
+          list.innerHTML = matches
+            .map(
+              (d) =>
+                `<div class="autocomplete-item" onclick="selectPilot('${d.id}', '${d.name}')">${d.name}</div>`,
+            )
+            .join("");
+          list.style.display = "block";
+        } else {
+          list.style.display = "none";
+        }
+      }
 
-  function selectPilot(id, name) {
-    document.getElementById("driverSelect").value = id;
-    document.getElementById("pilotSearch").value = name;
-    document.getElementById("autocompleteList").style.display = "none";
-    renderMiniHistory();
-  }
+      function selectPilot(id, name) {
+        document.getElementById("driverSelect").value = id;
+        document.getElementById("pilotSearch").value = name;
+        document.getElementById("autocompleteList").style.display = "none";
+        renderMiniHistory();
+      }
 
-  function renderAll(){
-    const allDrivers = state.drivers.map(d => {
-      const times = state.laps[d.id].map(l => l.time);
-      return { ...d, best: times.length ? Math.min(...times) : null, count: times.length };
-    }).sort((a,b) => (a.best === null ? 1 : b.best === null ? -1 : a.best - b.best));
+      function renderAll() {
+        const allDrivers = state.drivers
+          .map((d) => {
+            const times = state.laps[d.id].map((l) => l.time);
+            return {
+              ...d,
+              best: times.length ? Math.min(...times) : null,
+              count: times.length,
+            };
+          })
+          .sort((a, b) =>
+            a.best === null ? 1 : b.best === null ? -1 : a.best - b.best,
+          );
 
-    const podiumDrivers = allDrivers.filter(d => d.best !== null);
-    document.getElementById("podiumTop3").innerHTML = [1,2,3].map((pos, i) => {
-      const d = podiumDrivers[pos-1];
-      return `<div class="podiumCard" style="--card-color: ${podColors[i]}">
+        const podiumDrivers = allDrivers.filter((d) => d.best !== null);
+        document.getElementById("podiumTop3").innerHTML = [1, 2, 3]
+          .map((pos, i) => {
+            const d = podiumDrivers[pos - 1];
+            return `<div class="podiumCard" style="--card-color: ${podColors[i]}">
         <div class="podium-inner">
           <div class="puesto-badge">${podLabels[i]}</div>
           <div class="pilot-info">
-            <div class="pilot-name-big">${d ? d.name : 'VACANTE'}</div>
-            <div class="time-pill"><strong>${d ? formatMs(d.best) : '--:--.---'}</strong></div>
+            <div class="pilot-name-big">${d ? d.name : "VACANTE"}</div>
+            <div class="time-pill"><strong>${d ? formatMs(d.best) : "--:--.---"}</strong></div>
           </div>
         </div>
       </div>`;
-    }).join("");
+          })
+          .join("");
 
-    document.getElementById("fullLeaderboard").innerHTML = allDrivers.map((d, i) => `
+        document.getElementById("fullLeaderboard").innerHTML = allDrivers
+          .map(
+            (d, i) => `
       <div class="lbRow">
-        <div class="cell">#${i+1}</div>
+        <div class="cell">#${i + 1}</div>
         <div class="cell" style="font-weight:bold;">${d.name}</div>
-        <div class="cell center">${d.best ? formatMs(d.best) : '—'}</div>
+        <div class="cell center">${d.best ? formatMs(d.best) : "—"}</div>
         <div class="cell center">${d.count}</div>
         <div class="cell right"><button class="btn-details" onclick="showDetails('${d.id}')">DETALLES</button></div>
-      </div>`).join("");
-    renderMiniHistory();
-  }
+      </div>`,
+          )
+          .join("");
+        renderMiniHistory();
+      }
 
-  function showDetails(id){
-  const d = state.drivers.find(x => x.id === id);
-  document.getElementById("modalTitle").innerText = d.name;
-  
-  const times = [...state.laps[id]];
-  // Encontramos cuál es el tiempo más bajo (el récord personal)
-  const bestTime = times.length > 0 ? Math.min(...times.map(l => l.time)) : null;
+      function showDetails(id) {
+        const d = state.drivers.find((x) => x.id === id);
+        document.getElementById("modalTitle").innerText = d.name;
 
-  document.getElementById("modalList").innerHTML = times.map((l, i) => {
-    const isBest = l.time === bestTime;
-    return `
-      <div class="modal-item" style="${isBest ? 'border-color: var(--accent); background: rgba(31, 111, 235, 0.05);' : ''}">
-        <span>Vuelta ${times.length - i} ${isBest ? '🏆' : ''}</span>
-        <strong style="${isBest ? 'color: var(--accent);' : ''}">${formatMs(l.time)}</strong>
+        const times = [...state.laps[id]];
+        // Encontramos cuál es el tiempo más bajo (el récord personal)
+        const bestTime =
+          times.length > 0 ? Math.min(...times.map((l) => l.time)) : null;
+
+        document.getElementById("modalList").innerHTML = times
+          .map((l, i) => {
+            const isBest = l.time === bestTime;
+            return `
+      <div class="modal-item" style="${isBest ? "border-color: var(--accent); background: rgba(31, 111, 235, 0.05);" : ""}">
+        <span>Vuelta ${times.length - i} ${isBest ? "🏆" : ""}</span>
+        <strong style="${isBest ? "color: var(--accent);" : ""}">${formatMs(l.time)}</strong>
       </div>`;
-  }).join("");
-  
-  document.getElementById("historyModal").style.display = "flex";
-}
+          })
+          .join("");
 
-  function closeModal(){ document.getElementById("historyModal").style.display = "none"; }
+        document.getElementById("historyModal").style.display = "flex";
+      }
 
-  function renderMiniHistory(){
-    const id = document.getElementById("driverSelect").value;
-    const list = document.getElementById("miniHistoryList");
-    if(!id) { list.innerHTML = "Sin datos"; return; }
-    const laps = state.laps[id];
-    list.innerHTML = laps.slice(0,3).map(l => `
+      function closeModal() {
+        document.getElementById("historyModal").style.display = "none";
+      }
+
+      function renderMiniHistory() {
+        const id = document.getElementById("driverSelect").value;
+        const list = document.getElementById("miniHistoryList");
+        if (!id) {
+          list.innerHTML = "Sin datos";
+          return;
+        }
+        const laps = state.laps[id];
+        list.innerHTML = laps
+          .slice(0, 3)
+          .map(
+            (l) => `
       <div class="hist-item">
         <span>${new Date(l.ts).toLocaleTimeString()}</span>
         <strong>${formatMs(l.time)}</strong>
-      </div>`).join("");
-  }
+      </div>`,
+          )
+          .join("");
+      }
 
-  function toggleTheme() {
-    const html = document.documentElement;
-    const btn = document.getElementById('themeBtn');
-    if (html.getAttribute('data-theme') === 'light') {
-      html.removeAttribute('data-theme');
-      btn.innerText = '☀️ Modo Claro';
-    } else {
-      html.setAttribute('data-theme', 'light');
-      btn.innerText = '🌙 Modo Oscuro';
-    }
-  }
+      function toggleTheme() {
+        const html = document.documentElement;
+        const btn = document.getElementById("themeBtn");
+        if (html.getAttribute("data-theme") === "light") {
+          html.removeAttribute("data-theme");
+          btn.innerText = "☀️ DÍA";
+        } else {
+          html.setAttribute("data-theme", "light");
+          btn.innerText = "🌙 NOCHE";
+        }
+      }
 
-  async function resetAll(){
-    if(!isAdmin) return;
-    if(confirm("¿ESTÁS SEGURO? Esto borrará TODOS los tiempos de la base de datos.")){
-      const { error } = await _supabase.from('laps').delete().neq('time_ms', 0);
-      if(!error) { await loadDataFromSupabase(); renderAll(); }
-    }
-  }
+      async function resetAll() {
+        if (!isAdmin) return;
+        if (
+          confirm(
+            "¿ESTÁS SEGURO? Esto borrará TODOS los tiempos de la base de datos.",
+          )
+        ) {
+          const { error } = await _supabase
+            .from("laps")
+            .delete()
+            .neq("time_ms", 0);
+          if (!error) {
+            await loadDataFromSupabase();
+            renderAll();
+          }
+        }
+      }
 
-  // --- UTILS ---
-  const socket = new WebSocket('ws://localhost:8765');
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type === "LIVE") {
-      const ms = data.current_ms;
-      const m = Math.floor(ms / 60000); const s = Math.floor((ms % 60000) / 1000); const x = Math.floor((ms % 1000) / 10);
-      document.getElementById("liveTime").innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(2,'0')}`;
-    }
-    if (data.type === "NEW_LAP" && document.getElementById("driverSelect").value) {
-      document.getElementById("lapTime").value = formatMs(data.time_ms);
-      saveLap();
-    }
-  };
+      // --- UTILS ---
+      const socket = new WebSocket("ws://localhost:8765");
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "LIVE") {
+          const ms = data.current_ms;
+          const m = Math.floor(ms / 60000);
+          const s = Math.floor((ms % 60000) / 1000);
+          const x = Math.floor((ms % 1000) / 10);
+          document.getElementById("liveTime").innerText =
+            `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(x).padStart(2, "0")}`;
+        }
+        if (
+          data.type === "NEW_LAP" &&
+          document.getElementById("driverSelect").value
+        ) {
+          document.getElementById("lapTime").value = formatMs(data.time_ms);
+          saveLap();
+        }
+      };
 
-  init();
-</script>
-</body>
+      init();
+    </script>
+  </body>
 </html>
