@@ -13,166 +13,152 @@
   
   <style>
     :root {
+      /* DARK MODE (Default) */
       --bg: #070a0f;
+      --card-bg: rgba(15,23,34,0.85);
+      --header-bg: rgba(15,23,34,0.9);
+      --input-bg: rgba(0,0,0,0.5);
+      --text: #e7eef7;
       --border: #1c2a3a;
       --border2: #24374d;
-      --text: #e7eef7;
       --accent: #1f6feb;
       --danger: #b42318;
-      --font-main: "Orbitron", sans-serif;
+      --font-main: "Audiowide", sans-serif;
       --header-h: 90px;
       --grid-layout: 60px 250px 1fr 1fr 150px;
+      --live-timer-color: #00ff00;
     }
+
+    [data-theme="light"] {
+      /* LIGHT MODE - Blanco hueso */
+      --bg: #f2f2f2;
+      --card-bg: #ffffff;
+      --header-bg: rgba(242, 242, 242, 0.9);
+      --input-bg: #e8e9eb;
+      --text: #1a1a1a;
+      --border: #d1d9e6;
+      --border2: #b8c2d1;
+      --live-timer-color: #000000;
+    }
+
+    /* CLASE PARA OCULTAR ELEMENTOS DE ADMIN */
+    .admin-hidden { display: none !important; }
 
     * { box-sizing: border-box; }
     body {
       margin: 0; color: var(--text); font-family: var(--font-main); background: var(--bg);
       background: radial-gradient(1200px 800px at 30% 10%, #14214f 0%, transparent 55%), var(--bg);
       height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-      transition: font-family 0.2s ease;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     header {
       height: var(--header-h); padding: 0 30px;
-      background: rgba(15,23,34,0.9); border-bottom: 1px solid var(--border);
+      background: var(--header-bg); border-bottom: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: center;
       backdrop-filter: blur(10px); z-index: 100; flex-shrink: 0;
     }
 
     header h1 {
       margin: 0; font-size: 40px; font-weight: 900; letter-spacing: 2px;
-      text-transform: uppercase; color: #fff;
+      text-transform: uppercase; color: var(--text);
       text-shadow: 0 0 10px rgba(31, 111, 235, 0.8);
       font-family: inherit; white-space: nowrap;
     }
 
     .actions { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; white-space: nowrap; }
 
-    .font-switcher {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border2);
-      color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer;
-      font-family: 'Rajdhani', sans-serif; font-weight: 600; outline: none;
-      min-width: 220px; max-width: 240px; flex-shrink: 0;
-    }
-
-    header .font-switcher, header .actions button { margin-bottom: 0; }
-    .actions button { flex-shrink: 0; }
-
     .main-layout { display: grid; grid-template-columns: 380px 1fr; gap: 25px; padding: 20px; flex: 1; min-height: 0; }
     .sidebar { display: flex; flex-direction: column; gap: 20px; min-height: 0; }
     .content-area { display: flex; flex-direction: column; gap: 20px; min-height: 0; overflow: hidden; }
 
-    .card { background: rgba(15,23,34,0.85); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); overflow: hidden; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(10px); overflow: hidden; }
     label { font-size: 11px; text-transform: uppercase; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
-    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.5); border: 1px solid var(--border2); color: white; font-family: inherit; font-size: 16px; border-radius: 8px; outline: none; }
+    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border2); color: var(--text); font-family: inherit; font-size: 16px; border-radius: 8px; outline: none; }
 
     .search-wrapper { position: relative; width: 100%; }
     .autocomplete-list {
       position: absolute; top: 100%; left: 0; right: 0;
-      background: #0f1722; border: 1px solid var(--border2);
+      background: var(--card-bg); border: 1px solid var(--border2);
       max-height: 200px; overflow-y: auto; z-index: 1000;
       border-radius: 0 0 8px 8px; display: none;
       box-shadow: 0 10px 20px rgba(0,0,0,0.5); margin-top: -15px;
     }
-    .autocomplete-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .autocomplete-item:hover { background: var(--accent); }
+    .autocomplete-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border); color: var(--text); }
+    .autocomplete-item:hover { background: var(--accent); color: white; }
 
     button { padding: 12px 18px; cursor: pointer; border-radius: 8px; font-weight: bold; font-family: inherit; text-transform: uppercase; border: none; transition: .2s; }
     button.primary { background: var(--accent); color: #fff; width: 100%; margin-bottom: 5px; }
-    button.ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid rgba(255,255,255,.10); }
+    button.ghost { background: var(--input-bg); color: var(--text); border: 1px solid var(--border2); }
     button.danger { background: var(--danger); color: #fff; }
     button.btn-details { padding: 6px 12px; font-size: 10px; background: var(--accent); color: #fff; }
 
+    /* PODIUM: Sin animaciones extra */
     .podium-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex-shrink: 0; }
-    .podiumCard { position: relative; border-radius: 24px; padding: 2.5px; background: var(--card-color); min-height: 180px; overflow: hidden; z-index: 1; }
-    .podiumCard::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent 0%, transparent 10%, #fff 50%, var(--card-color) 70%, transparent 100%); animation: rotateBorder 4s linear infinite, changeHue 10s linear infinite; z-index: 2; filter: blur(8px); }
-    @keyframes rotateBorder { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes changeHue { 0% { filter: blur(8px) hue-rotate(0deg); } 100% { filter: blur(8px) hue-rotate(360deg); } }
-
-    .podium-inner { position: relative; width: 100%; height: 100%; background: #0f1722; border-radius: 22px; padding: 20px; z-index: 3; display: flex; flex-direction: column; justify-content: space-between; }
-    .podium-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .puesto-badge { background: var(--card-color); color: #000; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 8px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .puesto-numero-bg { font-size: 45px; font-weight: 900; line-height: 1; margin-top: -5px; color: var(--card-color); opacity: 0.80; text-shadow: 0 0 10px color-mix(in srgb, var(--card-color) 70%, transparent), 0 0 22px color-mix(in srgb, var(--card-color) 45%, transparent), 0 0 40px color-mix(in srgb, var(--card-color) 25%, transparent); }
-    .pilot-info { margin-top: 10px; }
-    .pilot-name-big { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-    .time-pill { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; }
-    .time-pill span { font-size: 11px; opacity: 0.5; text-transform: uppercase; }
+    .podiumCard { position: relative; border-radius: 24px; padding: 4px; background: var(--card-color); min-height: 180px; display: flex; }
+    .podium-inner { width: 100%; height: 100%; background: var(--card-bg); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+    .puesto-badge { background: var(--card-color); color: #000; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+    .puesto-numero-bg { font-size: 45px; font-weight: 900; line-height: 1; margin-top: -5px; color: var(--card-color); opacity: 0.80; }
+    .pilot-name-big { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+    .time-pill { background: var(--input-bg); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; }
     .time-pill strong { font-size: 18px; color: var(--card-color); font-family: inherit; }
 
     .table-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .lbHeader { display: grid; grid-template-columns: var(--grid-layout); padding: 18px 25px; color: #6aa9ff; font-weight: 900; font-size: 14px; border-bottom: 2px solid var(--accent); background: #0b111a; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
+    .lbHeader { display: grid; grid-template-columns: var(--grid-layout); padding: 18px 25px; color: var(--accent); font-weight: 900; font-size: 14px; border-bottom: 2px solid var(--accent); background: var(--header-bg); text-transform: uppercase; flex-shrink: 0; }
     .table-scroll-area { flex: 1; overflow-y: auto; min-height: 0; }
-    .lbRow { display: grid; grid-template-columns: var(--grid-layout); align-items: center; padding: 16px 25px; margin-top: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.05); }
+    .lbRow { display: grid; grid-template-columns: var(--grid-layout); align-items: center; padding: 16px 25px; margin-top: 8px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
     .cell.center { text-align: center; } .cell.right { text-align: right; }
 
+    #liveTime {
+      font-size: 80px; font-weight: 900; color: var(--live-timer-color); 
+      font-family: 'Digital-7 Mono', sans-serif; text-shadow: 0 0 15px rgba(0,0,0,0.1); line-height: 1;
+      transition: color 0.3s;
+    }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: #0f1722; border: 1px solid var(--border2); border-radius: 24px; width: 600px; padding: 30px; display: flex; flex-direction: column; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .modal-list { overflow-y: auto; flex: 1; }
-    .modal-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; margin-bottom: 10px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--border2); border-radius: 24px; width: 600px; padding: 30px; color: var(--text); }
     .history-mini { flex: 1; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 15px; overflow-y: auto; }
-    .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
     
-    .status-msg { margin-bottom: 10px; font-size: 13px; color: #fff; font-weight: bold; }
-    .status-msg span { color: var(--accent); }
-
-/* Estilo para el selector de fuentes (Dropdown) */
-select {
-    background-color: #0f1722;
-    color: white;
-    border: 1px solid var(--border2);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-family: inherit;
-    cursor: pointer;
-    outline: none;
-}
-
-select option {
-    background-color: #0f1722;
-    color: white;
-    padding: 10px;
-}
-
-select option:hover, 
-select option:focus {
-    background-color: var(--accent);
-}
-
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      body { overflow-y: auto; height: auto; }
+      .main-layout { grid-template-columns: 1fr; padding: 10px; }
+      header { height: auto; padding: 15px; flex-direction: column; gap: 15px; }
+      .actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+      .podium-container { grid-template-columns: 1fr; }
+      .lbHeader, .lbRow { grid-template-columns: 40px 1fr 100px 80px; padding: 10px; font-size: 12px; }
+      .cell:nth-child(4) { display: none; }
+      #liveTime { font-size: 50px !important; }
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  <h1>🏁 ORION LEADERBOARD 🏁</h1>
+  <h1>🏁 LEADERBOARD 🏁</h1>
   <div class="actions">
-    <select class="font-switcher" onchange="document.body.style.fontFamily = this.value">
-      <option value="'Orbitron', sans-serif">Orbitron (Cyber)</option>
-      <option value="'Oxanium', sans-serif">Oxanium (Racing)</option>
-      <option value="'Genos', sans-serif">Genos (Modern)</option>
-      <option value="'Bruno Ace SC', sans-serif">Bruno Ace (Futurist)</option>
-      <option value="'Michroma', sans-serif">Michroma (Clean)</option>
-      <option value="'Sono', monospace">Sono (Monospace)</option>
-      <option value="'Rajdhani', sans-serif">Rajdhani (Tech)</option>
-      <option value="'Audiowide', sans-serif">Audiowide (Future)</option>
-      <option value="'Chakra Petch', sans-serif">Chakra (Drift)</option>
-    </select>
-    <button class="ghost" onclick="document.getElementById('importInput').click()">Importar CSV</button>
+    <button class="ghost" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
+    <button class="ghost" onclick="toggleAdminView()" id="adminToggleBtn" style="border-color: var(--accent); color: var(--accent);">👁️ Ver como Espectador</button>
+    
+    <button class="ghost admin-only" onclick="document.getElementById('importInput').click()">Importar CSV</button>
     <input type="file" id="importInput" style="display:none" accept=".csv" onchange="importCSV(event)">
-    <button class="ghost" onclick="exportRecords()">Exportar CSV</button>
-    <button class="danger" style="padding: 10px 15px;" onclick="resetAll()">Reset Total</button>
+    <button class="ghost admin-only" onclick="exportRecords()">Exportar CSV</button>
+    <button class="danger admin-only" onclick="resetAll()">Reset Total</button>
   </div>
 </header>
 
 <div class="main-layout">
   <aside class="sidebar">
     <div class="card" style="height: 100%;">
-      <label>Nombre Piloto</label>
-      <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
-      <button class="primary" onclick="addDriver()">Agregar Piloto</button>
-      <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-      
+      <div class="admin-only">
+        <label>Nombre Piloto</label>
+        <input id="pilotName" placeholder="Nombre" onkeydown="if(event.key==='Enter') addDriver()"/>
+        <button class="primary" onclick="addDriver()">Agregar Piloto</button>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+      </div>
+
       <label>Buscar Piloto</label>
       <div class="search-wrapper">
         <input id="pilotSearch" placeholder="Escribe para buscar..." oninput="filterDrivers(this.value)" autocomplete="off"/>
@@ -180,11 +166,14 @@ select option:focus {
       </div>
       <input type="hidden" id="driverSelect" value="">
 
-      <label>Tiempo (MM:SS.mmm)</label>
-      <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
-      <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
-      <button class="danger" style="width:100%;" onclick="removeLastLap()">Eliminar Último Tiempo</button>
-      
+      <div class="admin-only">
+        <label>Tiempo (MM:SS.mmm)</label>
+        <input id="lapTime" placeholder="00:00.000" onkeydown="if(event.key==='Enter') saveLap()"/>
+        <button class="primary" onclick="saveLap()">Guardar Tiempo</button>
+        <button class="danger" style="width:100%; margin-top: 5px;" onclick="removeLastLap()">Eliminar Último Tiempo</button>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+      </div>
+
       <div class="history-mini">
         <div id="driverStatus" class="status-msg"></div>
         <label>Historial Rápido</label>
@@ -194,44 +183,30 @@ select option:focus {
   </aside>
 
   <main class="content-area">
-  <section class="podium-container" id="podiumTop3"></section>
-
-  <section class="card table-card">
-    <div style="background: rgba(31, 111, 235, 0.1); border: 1px solid var(--accent); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center;">
-    <label style="color: var(--accent); margin-bottom: 10px; font-weight: bold; letter-spacing: 2px;">CRONÓMETRO EN VIVO</label>
-   <div id="liveTime" style="font-size: 80px; font-weight: 900; color: #00ff00; font-family: 'Digital-7 Mono', sans-serif;, monospace; text-shadow: 0 0 15px rgba(0,255,0,0.5); line-height: 1;">
-    00:00.00
-   </div>
-   <div id="recordMessage" style="color: #ffb700; font-size: 20px; font-weight: 800; text-transform: uppercase; margin-top: 10px; opacity: 0; transition: opacity 0.5s; text-shadow: 0 0 10px rgba(255, 183, 0, 0.6);">
-  ¡NUEVO RÉCORD DE PISTA! 🏆
-</div>
-</div>
-
-    <div class="lbHeader">
-        <div class="cell">#</div>
-        <div class="cell">Piloto</div>
-        <div class="cell center">Mejor Tiempo</div>
-        <div class="cell center">Intentos</div>
-        <div class="cell right">Tiempos</div>
-    </div>
-
-    <div class="table-scroll-area">
-        <div id="fullLeaderboard"></div>
-    </div>
-</section>
-</main>
+    <section class="podium-container" id="podiumTop3"></section>
+    <section class="card table-card">
+      <div style="background: rgba(31, 111, 235, 0.1); border: 1px solid var(--accent); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px;">
+        <label style="color: var(--accent); font-weight: bold; letter-spacing: 2px;">CRONÓMETRO EN VIVO</label>
+        <div id="liveTime">00:00.00</div>
+        <div id="recordMessage" style="color: #ffb700; font-size: 20px; font-weight: 800; text-transform: uppercase; margin-top: 10px; opacity: 0; transition: opacity 0.5s;">
+          ¡NUEVO RÉCORD DE PISTA! 🏆
+        </div>
+      </div>
+      <div class="lbHeader">
+        <div class="cell">#</div><div class="cell">Piloto</div><div class="cell center">Mejor Tiempo</div><div class="cell center">Intentos</div><div class="cell right">Tiempos</div>
+      </div>
+      <div class="table-scroll-area"><div id="fullLeaderboard"></div></div>
+    </section>
+  </main>
 </div>
 
 <div id="historyModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
   <div class="modal-content">
     <div class="modal-header">
-      <div>
-        <span style="font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase;">Historial</span>
-        <h2 id="modalTitle" style="margin:0; font-size:24px; color:#fff;">PILOTO</h2>
-      </div>
+      <h2 id="modalTitle">PILOTO</h2>
       <button class="btn-details" style="background:var(--danger)" onclick="closeModal()">CERRAR</button>
     </div>
-    <div id="modalList" class="modal-list"></div>
+    <div id="modalList" style="max-height:400px; overflow-y:auto;"></div>
   </div>
 </div>
 
@@ -241,189 +216,194 @@ select option:focus {
   const podColors = ["#ffb700", "#00f2ff", "#ff00ea"];
   const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
 
-function filterDrivers(val) {
+  // --- LÓGICA DE ADMINISTRACIÓN ---
+  let isAdmin = true;
+
+  function toggleAdminView() {
+    isAdmin = !isAdmin;
+    const adminElements = document.querySelectorAll('.admin-only');
+    const btn = document.getElementById('adminToggleBtn');
+
+    adminElements.forEach(el => {
+      if (!isAdmin) {
+        el.classList.add('admin-hidden');
+      } else {
+        el.classList.remove('admin-hidden');
+      }
+    });
+
+    btn.innerText = isAdmin ? '👁️ Ver como Espectador' : '🔑 Activar Modo Admin';
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    if (html.getAttribute('data-theme') === 'light') {
+      html.removeAttribute('data-theme');
+      btn.innerText = '☀️ Modo Claro';
+    } else {
+      html.setAttribute('data-theme', 'light');
+      btn.innerText = '🌙 Modo Oscuro';
+    }
+  }
+
+  function filterDrivers(val) {
     const list = document.getElementById("autocompleteList");
-    const driverSelect = document.getElementById("driverSelect");
-    
-    if (!val) { 
-        list.style.display = "none"; 
-        driverSelect.value = ""; // Limpia el ID si borras el nombre
-        return; 
-    }
-
+    if (!val) { list.style.display = "none"; return; }
     const matches = state.drivers.filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
-    
-    // QA FIX: Si hay una coincidencia exacta mientras escribes, selecciónalo de una vez
-    const exactMatch = state.drivers.find(d => d.name.toLowerCase() === val.toLowerCase().trim());
-    if (exactMatch) {
-        selectPilot(exactMatch.id, exactMatch.name);
-    }
-
     if (matches.length > 0) {
-        list.innerHTML = matches.map(d => `<div class="autocomplete-item" onclick="selectPilot('${d.id}', '${d.name}')">${d.name}</div>`).join("");
-        list.style.display = "block";
-    } else { 
-        list.style.display = "none"; 
-    }
-}
+      list.innerHTML = matches.map(d => `<div class="autocomplete-item" onclick="selectPilot('${d.id}', '${d.name}')">${d.name}</div>`).join("");
+      list.style.display = "block";
+    } else { list.style.display = "none"; }
+  }
 
-function selectPilot(id, name) {
+  function selectPilot(id, name) {
     document.getElementById("driverSelect").value = id;
     document.getElementById("pilotSearch").value = name;
     document.getElementById("autocompleteList").style.display = "none";
-    
-    // Mensaje de confirmación para el comisario de carrera (Tú)
-    console.log("👤 Piloto vinculado con éxito. ID:", id, "| Nombre:", name);
-    
     renderMiniHistory();
-}
+  }
 
-  document.addEventListener("click", (e) => {
-    if (e.target.id !== 'pilotSearch') document.getElementById("autocompleteList").style.display = "none";
-  });
+  function addDriver(){
+    const input = document.getElementById("pilotName");
+    if(!input.value.trim()) return;
+    const id = "d-" + Date.now();
+    state.drivers.push({ id, name: input.value.trim() });
+    state.laps[id] = [];
+    input.value = "";
+    saveAndRender();
+  }
 
-  function addDriver(){ const input = document.getElementById("pilotName"); if(!input.value.trim()) return; const id = "d-" + Date.now(); state.drivers.push({ id, name: input.value.trim() }); state.laps[id] = []; input.value = ""; saveAndRender(); }
-function saveLap() {
+  function saveLap() {
     const input = document.getElementById("lapTime");
     const id = document.getElementById("driverSelect").value;
     const parts = input.value.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
-    
     if(!id || !parts) return;
-    
     const ms = (parseInt(parts[1])*60000) + (parseInt(parts[2])*1000) + parseInt(parts[3].padEnd(3,'0'));
-
-    // --- LÓGICA DE RÉCORD ---
-    // 1. Obtenemos el mejor tiempo global actual (antes de guardar la nueva)
     const allTimes = Object.values(state.laps).flat().map(l => l.time);
     const globalBest = allTimes.length > 0 ? Math.min(...allTimes) : Infinity;
-
-    // 2. Guardamos la nueva vuelta
     state.laps[id].push({ time: ms, ts: Date.now() });
-    
-    // 3. Si la nueva vuelta es mejor que el récord global, mostramos el aviso
     if (ms < globalBest) {
-        showRecordNotice();
+      const msg = document.getElementById("recordMessage");
+      msg.style.opacity = "1";
+      setTimeout(() => { msg.style.opacity = "0"; }, 5000);
     }
-
     input.value = "";
     saveAndRender();
-} 
+  }
 
-// Función para mostrar y ocultar el mensaje
-function showRecordNotice() {
-    const msg = document.getElementById("recordMessage");
-    msg.style.opacity = "1"; // Lo hace visible
-    
-    setTimeout(() => {
-        msg.style.opacity = "0"; // Lo oculta después de 5 segundos
-    }, 8000);
-}
+  function removeLastLap(){
+    const id = document.getElementById("driverSelect").value;
+    if(!id || !state.laps[id].length) return;
+    if(confirm("¿Eliminar el último tiempo?")) { state.laps[id].pop(); saveAndRender(); }
+  }
 
-function showRecordNotice() {
-    const msg = document.getElementById("recordMessage");
-    msg.style.opacity = "1"; // Lo hace visible
-    
-    setTimeout(() => {
-        msg.style.opacity = "0"; // Lo oculta después de 5 segundos
-    }, 5000);
-}
-
-function removeLastLap(){ const id = document.getElementById("driverSelect").value; if(!id || !state.laps[id].length) return; if(confirm("¿Eliminar el último tiempo?")) { state.laps[id].pop(); saveAndRender(); } }
-  
-function formatMs(ms){ const m = Math.floor(ms / 60000); const s = Math.floor((ms % 60000) / 1000); const x = ms % 1000; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`; }
+  function formatMs(ms){
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const x = ms % 1000;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
+  }
 
   function renderAll(){
     const allDrivers = state.drivers.map(d => {
       const times = state.laps[d.id].map(l => l.time);
-      const validTimes = times.filter(t => t > 0);
-      return { ...d, best: validTimes.length ? Math.min(...validTimes) : null, count: times.length };
+      return { ...d, best: times.length ? Math.min(...times) : null, count: times.length };
     }).sort((a,b) => (a.best === null ? 1 : b.best === null ? -1 : a.best - b.best));
 
     const podiumDrivers = allDrivers.filter(d => d.best !== null);
     document.getElementById("podiumTop3").innerHTML = [1,2,3].map((pos, i) => {
       const d = podiumDrivers[pos-1];
-      return `<div class="podiumCard" style="--card-color: ${podColors[i]}; --card-color-alpha: ${podColors[i]}44"><div class="podium-inner"><div class="podium-header"><div class="puesto-badge">${podLabels[i]}</div><div class="puesto-numero-bg">#${pos}</div></div><div class="pilot-info"><div class="pilot-name-big">${d ? d.name : 'VACANTE'}</div><div class="time-pill"><span>Tiempo:</span><strong>${d ? formatMs(d.best) : '--:--.---'}</strong></div></div></div></div>`;
+      return `<div class="podiumCard" style="--card-color: ${podColors[i]}">
+        <div class="podium-inner">
+          <div class="puesto-badge">${podLabels[i]}</div>
+          <div class="pilot-info">
+            <div class="pilot-name-big">${d ? d.name : 'VACANTE'}</div>
+            <div class="time-pill"><strong>${d ? formatMs(d.best) : '--:--.---'}</strong></div>
+          </div>
+        </div>
+      </div>`;
     }).join("");
 
-    document.getElementById("fullLeaderboard").innerHTML = allDrivers.map((d, i) => `<div class="lbRow"><div class="cell">#${i+1}</div><div class="cell" style="font-weight:bold; color:#fff;">${d.name}</div><div class="cell center">${d.best ? formatMs(d.best) : '—'}</div><div class="cell center">${d.count}</div><div class="cell right"><button class="btn-details" onclick="showDetails('${d.id}')">DETALLES</button></div></div>`).join("");
+    document.getElementById("fullLeaderboard").innerHTML = allDrivers.map((d, i) => `
+      <div class="lbRow">
+        <div class="cell">#${i+1}</div>
+        <div class="cell" style="font-weight:bold;">${d.name}</div>
+        <div class="cell center">${d.best ? formatMs(d.best) : '—'}</div>
+        <div class="cell center">${d.count}</div>
+        <div class="cell right"><button class="btn-details" onclick="showDetails('${d.id}')">DETALLES</button></div>
+      </div>`).join("");
     renderMiniHistory();
   }
 
-  function showDetails(id){ const d = state.drivers.find(x => x.id === id); document.getElementById("modalTitle").innerText = d.name; const list = document.getElementById("modalList"); const times = [...state.laps[id]].reverse(); list.innerHTML = times.length ? times.map((l, i) => `<div class="modal-item"><span style="color:var(--accent)">Vuelta ${times.length - i}</span><strong style="color:white;">${formatMs(l.time)}</strong></div>`).join("") : `<div style="text-align:center; opacity:0.5; padding:20px;">Sin tiempos.</div>`; document.getElementById("historyModal").style.display = "flex"; }
+  function showDetails(id){
+    const d = state.drivers.find(x => x.id === id);
+    document.getElementById("modalTitle").innerText = d.name;
+    const times = [...state.laps[id]].reverse();
+    document.getElementById("modalList").innerHTML = times.map((l, i) => `
+      <div class="modal-item">
+        <span>Vuelta ${times.length - i}</span>
+        <strong>${formatMs(l.time)}</strong>
+      </div>`).join("");
+    document.getElementById("historyModal").style.display = "flex";
+  }
+
   function closeModal(){ document.getElementById("historyModal").style.display = "none"; }
 
   function renderMiniHistory(){
     const id = document.getElementById("driverSelect").value;
     const list = document.getElementById("miniHistoryList");
-    const statusDiv = document.getElementById("driverStatus");
-    if(!id) { list.innerHTML = "Sin datos"; statusDiv.innerHTML = ""; return; }
-    const ranked = state.drivers.map(d => {
-      const times = state.laps[d.id].map(l => l.time);
-      return { id: d.id, best: times.length ? Math.min(...times) : null };
-    }).sort((a,b) => (a.best === null ? 1 : b.best === null ? -1 : a.best - b.best));
-    const index = ranked.findIndex(x => x.id === id);
-    const pilotData = ranked[index];
-    if(pilotData.best === null) { statusDiv.innerHTML = "EL PILOTO <span>NO TIENE TIEMPOS</span> REGISTRADOS"; }
-    else { statusDiv.innerHTML = `POSICIÓN ACTUAL: <span>#${index + 1}</span> | MEJOR: <span>${formatMs(pilotData.best)}</span>`; }
+    if(!id) { list.innerHTML = "Sin datos"; return; }
     const laps = state.laps[id];
-    if(!laps || !laps.length) { list.innerHTML = "Sin vueltas"; return; }
-    list.innerHTML = [...laps].reverse().slice(0,3).map(l => `<div class="hist-item"><span>${new Date(l.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span> <strong>${formatMs(l.time)}</strong></div>`).join("");
+    list.innerHTML = [...laps].reverse().slice(0,3).map(l => `
+      <div class="hist-item">
+        <span>${new Date(l.ts).toLocaleTimeString()}</span>
+        <strong>${formatMs(l.time)}</strong>
+      </div>`).join("");
   }
 
   function saveAndRender(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
   function resetAll(){ if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
 
-  // NUEVA FUNCIÓN PARA IMPORTAR
   function importCSV(e) {
-    const file = e.target.files[0];
-    if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) {
-      const content = e.target.result;
-      const lines = content.split('\n').map(l => l.trim()).filter(l => l);
-      if (lines.length <= 1) return alert("Archivo inválido.");
-      if (!confirm("Esto reemplazará los datos actuales. ¿Deseas continuar?")) return;
-      const newDrivers = [];
-      const newLaps = {};
+    reader.onload = (ev) => {
+      const lines = ev.target.result.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length <= 1) return;
+      const newDrivers = []; const newLaps = {};
       for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(';');
-        if (cols.length < 2) continue;
-        const name = cols[0];
-        const timeStr = cols[1];
-        const ts = cols[2] ? parseInt(cols[2]) : Date.now();
+        const cols = lines[i].split(';'); if (cols.length < 2) continue;
+        const name = cols[0]; const timeStr = cols[1]; const ts = cols[2] ? parseInt(cols[2]) : Date.now();
         let d = newDrivers.find(x => x.name === name);
-        if (!d) {
-          d = { id: "d-" + (Date.now() + newDrivers.length), name: name };
-          newDrivers.push(d);
-          newLaps[d.id] = [];
-        }
-        if (timeStr && timeStr !== "--" && timeStr !== "N/A") {
-          const p = timeStr.match(/(\d{2}):(\d{2})\.(\d{1,3})/);
-          if (p) {
-            const ms = (parseInt(p[1])*60000) + (parseInt(p[2])*1000) + parseInt(p[3].padEnd(3,'0'));
-            newLaps[d.id].push({ time: ms, ts: ts });
-          }
-        }
+        if (!d) { d = { id: "d-" + (Date.now() + newDrivers.length), name }; newDrivers.push(d); newLaps[d.id] = []; }
+        const p = timeStr.match(/(\d{2}):(\d{2})\.(\d{3})/);
+        if (p) newLaps[d.id].push({ time: (parseInt(p[1])*60000) + (parseInt(p[2])*1000) + parseInt(p[3]), ts });
       }
-      state.drivers = newDrivers; state.laps = newLaps;
-      saveAndRender();
-      alert("Respaldo cargado correctamente.");
+      state.drivers = newDrivers; state.laps = newLaps; saveAndRender();
     };
-    reader.readAsText(file);
+    reader.readAsText(e.target.files[0]);
   }
 
-  // MODIFICADO PARA SER UN RESPALDO REAL (TODOS LOS TIEMPOS)
-  function exportRecords(){ 
-    if(state.drivers.length === 0) return alert("No hay datos."); 
-    let csv = "\ufeffPiloto;Tiempo;Timestamp\n"; 
-    state.drivers.forEach(d => {
-      if (state.laps[d.id].length === 0) csv += `${d.name};--;${Date.now()}\n`;
-      else state.laps[d.id].forEach(l => { csv += `${d.name};${formatMs(l.time)};${l.ts}\n`; });
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = `Respaldo_Leaderboard.csv`; a.click(); 
+  function exportRecords(){
+    let csv = "\ufeffPiloto;Tiempo;Timestamp\n";
+    state.drivers.forEach(d => state.laps[d.id].forEach(l => csv += `${d.name};${formatMs(l.time)};${l.ts}\n`));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = "ORION_Backup.csv"; a.click();
   }
+
+  const socket = new WebSocket('ws://localhost:8765');
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === "LIVE") {
+      const ms = data.current_ms;
+      const m = Math.floor(ms / 60000); const s = Math.floor((ms % 60000) / 1000); const x = Math.floor((ms % 1000) / 10);
+      document.getElementById("liveTime").innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(2,'0')}`;
+    }
+    if (data.type === "NEW_LAP" && document.getElementById("driverSelect").value) {
+      document.getElementById("lapTime").value = formatMs(data.time_ms);
+      saveLap();
+    }
+  };
 
   document.getElementById("lapTime").addEventListener("input", e => {
     let v = e.target.value.replace(/\D/g,'');
@@ -432,57 +412,7 @@ function formatMs(ms){ const m = Math.floor(ms / 60000); const s = Math.floor((m
     e.target.value = v;
   });
 
-renderAll();
-
-
-
-const socket = new WebSocket('ws://localhost:8765');
-
-socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    
-    // 1. LÓGICA DEL CRONÓMETRO EN VIVO
-     // 1. LÓGICA DEL CRONÓMETRO EN VIVO
-   if (data.type === "LIVE") {
-    const timeElement = document.getElementById("liveTime");
-    if (timeElement) {
-        const ms = data.current_ms;
-        const m = Math.floor(ms / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
-        const x = Math.floor((ms % 1000) / 10); // 2 decimales
-        
-        // El uso de padStart es CLAVE para que el 01 no ocupe menos que el 10
-        timeElement.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(2,'0')}`;
-    }
-}
-    
-    // 2. LÓGICA DE REGISTRO AUTOMÁTICO (Tu lógica actual intacta)
-    if (data.type === "NEW_LAP") {
-        const currentDriverId = document.getElementById("driverSelect").value;
-        
-        if (!currentDriverId) {
-            console.error("Vuelta detectada, pero no hay piloto seleccionado.");
-            return;
-        }
-
-        const ms = data.time_ms;
-        const m = Math.floor(ms / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
-        const x = ms % 1000;
-        const formatted = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(x).padStart(3,'0')}`;
-
-        const lapInput = document.getElementById("lapTime");
-        if (lapInput) {
-            lapInput.value = formatted;
-            saveLap(); 
-            console.log("✅ Tiempo registrado automáticamente: " + formatted);
-        }
-    }
-};
-
-socket.onopen = () => console.log("✅ WebSocket conectado al servidor ORIÓN");
-socket.onerror = (err) => console.error("❌ Error de conexión con Python");
-
+  renderAll();
 </script>
 </body>
 </html>
