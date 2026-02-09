@@ -1178,54 +1178,39 @@
     }
 
     // 2. LÓGICA PARA LA META (NEW_LAP)
+    // 2. LÓGICA PARA LA META (NEW_LAP)
     if (data.type === "NEW_LAP") {
-        const idActual = document.getElementById("driverSelect").value;
+        const tiempoFinalMs = data.time_ms;
+        const tiempoFinalTexto = formatMs(tiempoFinalMs);
         
-        if (idActual) {
-            const tiempoFinalMs = data.time_ms;
-            const tiempoFinalTexto = formatMs(tiempoFinalMs);
-            
-            // Guardamos en la base de datos (tu lógica original)
+        // --- PARTE A: GUARDADO EN BASE DE DATOS (Solo para el que está corriendo) ---
+        // Solo guardamos si este navegador tiene el piloto seleccionado que coincide con el que terminó la vuelta
+        const idLocal = document.getElementById("driverSelect").value;
+        if (idLocal) {
             document.getElementById("lapTime").value = tiempoFinalTexto;
-            saveLap();
-
-            // --- CÁLCULO DE POSICIÓN EN TIEMPO REAL ---
-            // 1. Obtenemos los mejores tiempos de todos los pilotos
-            let todosLosMejoresTiempos = state.drivers.map(d => {
-                const vueltas = state.laps[d.id] || [];
-                const mejor = vueltas.length ? Math.min(...vueltas.map(l => l.time)) : Infinity;
-                return mejor;
-            });
-
-            // 2. Comparamos el tiempo actual con los demás para saber el puesto
-            // Contamos cuántos tiempos son MEJORES (menores) que el que acabamos de hacer
-            const puesto = todosLosMejoresTiempos.filter(t => t < tiempoFinalMs).length + 1;
-
-            // --- MOSTRAR BANNER ---
-            const banner = document.getElementById("notification-banner");
-            const nombrePiloto = data.driver_name || document.getElementById("pilotSearch").value || "Piloto";
-
-            document.getElementById("notif-piloto").innerText = nombrePiloto;
-            document.getElementById("notif-tiempo").innerText = tiempoFinalTexto;
-            
-            // ACTUALIZACIÓN DEL PUESTO:
-            document.getElementById("notif-puesto").innerText = `PUESTO #${puesto}`;
-
-            // Cambiar color del borde si es el #1
-            if (puesto === 1) {
-                banner.style.borderBottom = "10px solid #ffcc00"; // Dorado para el Rey
-                document.getElementById("notif-puesto").style.color = "#ffcc00";
-            } else {
-                banner.style.borderBottom = "10px solid #ff0000"; // Rojo estándar
-                document.getElementById("notif-puesto").style.color = "#00ff00";
-            }
-
-            banner.classList.add("mostrar");
-
-            setTimeout(() => {
-                banner.classList.remove("mostrar");
-            }, 5000);
+            saveLap(); // Esto solo se ejecutará en tu PC local
         }
+
+        // --- PARTE B: BANNER VISUAL (Para todo el mundo, en Vercel y Local) ---
+        const banner = document.getElementById("notification-banner");
+        
+        // Usamos el nombre que viene desde Python (que ya vimos que llega bien)
+        const nombrePiloto = data.driver_name || "Piloto en pista";
+
+        document.getElementById("notif-piloto").innerText = nombrePiloto;
+        document.getElementById("notif-tiempo").innerText = tiempoFinalTexto;
+        
+        // Para el puesto, como los espectadores no tienen la tabla actualizada al milisegundo,
+        // podemos poner un mensaje genérico o dejar que el sistema lo intente calcular.
+        document.getElementById("notif-puesto").innerText = "¡VUELTA COMPLETADA!";
+
+        // Mostramos el banner gigante
+        banner.classList.add("mostrar");
+
+        // Lo ocultamos a los 5 segundos
+        setTimeout(() => {
+            banner.classList.remove("mostrar");
+        }, 5000);
     }
   }
 
