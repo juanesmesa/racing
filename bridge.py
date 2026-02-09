@@ -5,6 +5,9 @@ import json
 import websockets
 from supabase import create_client, Client
 
+
+active_driver_id = None
+active_driver_name = "Nadie en pista"
 # === CONFIGURACIÓN SUPABASE ===
 SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ"
@@ -19,16 +22,20 @@ async def telemetry_server(websocket):
     last_lap_count = -1
     
     # Tarea para escuchar mensajes desde la web (como SELECT_DRIVER)
+# Tarea para escuchar mensajes desde la web
+
     async def listen_to_web():
-        global active_driver_id
+        global active_driver_id, active_driver_name
         try:
             async for message in websocket:
                 data = json.loads(message)
                 if data.get("type") == "SELECT_DRIVER":
                     active_driver_id = data.get("driver_id")
-                    print(f"\n👤 Piloto activo en pista: {active_driver_id}")
-        except:
-            pass
+                    active_driver_name = data.get("driver_name") # Guardamos el nombre real
+                    print(f"\n👤 Piloto activo en pista: {active_driver_name}")
+        except Exception as e:
+            print(f"Error en comunicación web: {e}")
+
 
     # Iniciamos la escucha en segundo plano
     asyncio.create_task(listen_to_web())
@@ -45,7 +52,12 @@ async def telemetry_server(websocket):
 
             if tiempo_actual > 0:
                 # 1. Enviar tiempo en vivo a la web
-                payload_live = {"type": "LIVE", "current_ms": tiempo_actual}
+                payload_live = {
+                    "type": "LIVE", 
+                     "current_ms": tiempo_actual,
+                     "driver_name": active_driver_name if active_driver_id else "Nadie en pista"
+                   #  "driver_name": active_driver_id if active_driver_id else "Nadie en pista"
+}
                 await websocket.send(json.dumps(payload_live))
 
                 print(f"Vuelta: {vueltas} | Cronómetro: {tiempo_actual}ms", end="\r")
@@ -54,7 +66,8 @@ async def telemetry_server(websocket):
                 if vueltas > last_lap_count:
                     if last_lap_count != -1 and ultimo_tiempo > 0:
                         # Enviar a la web para efectos visuales
-                        payload = {"type": "NEW_LAP", "time_ms": ultimo_tiempo}
+                        payload = {"type": "NEW_LAP", "time_ms": ultimo_tiempo, 
+                        "driver_name": active_driver_name}
                         await websocket.send(json.dumps(payload))
                         
                         print(f"\n✅ META DETECTADA: {ultimo_tiempo}ms")
