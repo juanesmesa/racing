@@ -497,12 +497,78 @@
           font-size: 13px;
         }
       }
+
+      #notification-banner {
+    position: fixed;
+    top: -300px; /* Empieza arriba, fuera de la pantalla */
+    left: 50%;
+    transform: translateX(-50%); /* Centrado exacto horizontalmente */
+    width: 90%;
+    max-width: 800px;
+    background: rgba(10, 15, 20, 0.95);
+    color: white;
+    border-bottom: 10px solid #ff0000; /* Borde inferior grueso rojo racing */
+    padding: 40px;
+    transition: top 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto de caída con rebote */
+    z-index: 10000;
+    text-align: center;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+}
+
+#notification-banner.mostrar {
+    top: 0; /* Baja hasta pegarse al techo de la pantalla */
+}
+
+#notif-piloto { 
+    color: #ffcc00; 
+    font-weight: 900; 
+    display: block; 
+    font-size: 2rem; /* Nombre muy grande */
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+#notif-info {
+    font-size: 1.2rem;
+    color: #aaa;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+}
+
+#notif-tiempo { 
+    font-size: 5rem; /* El tiempo es el protagonista */
+    font-family: 'Digital-7 Mono', monospace; 
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    margin: 15px 0;
+}
+
+#notif-puesto { 
+    font-size: 1.5rem; 
+    color: #00ff00; 
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+        #notif-piloto { color: #ffcc00; font-weight: bold; display: block; font-size: 1.1rem; }
+        #notif-tiempo { font-size: 1.8rem; font-family: monospace; color: #fff; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
   <body>
+    <div id="notification-banner" class="notificacion-oculta">
+    <div class="notif-content">
+        <span id="notif-piloto">PILOTO</span>
+        <span id="notif-info">¡NUEVA VUELTA!</span>
+        <div id="notif-tiempo">00:00.000</div>
+        <div id="notif-puesto">PUESTO #1</div>
+    </div>
+</div>
     <header>
       <h1> LEADERBOARD 🏁</h1>
       <div class="actions">
@@ -626,6 +692,11 @@
               "
               >CRONÓMETRO EN VIVO</label
             >
+
+            <p style="font-size: 1.2rem; color: #ffcc00; margin-bottom: 5px;">
+        En este momento corriendo: <span id="nombre-piloto" style="font-weight: bold;">Esperando...</span>
+    </p>
+
             <div id="liveTime">00:00.00</div>
             <div
               id="recordMessage"
@@ -947,12 +1018,22 @@
         }
       }
 
-      function selectPilot(id, name) {
-        document.getElementById("driverSelect").value = id;
-        document.getElementById("pilotSearch").value = name;
-        document.getElementById("autocompleteList").style.display = "none";
-        renderMiniHistory();
-      }
+    function selectPilot(id, name) {
+    document.getElementById("driverSelect").value = id;
+    document.getElementById("pilotSearch").value = name;
+    document.getElementById("autocompleteList").style.display = "none";
+    renderMiniHistory();
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: "SELECT_DRIVER",
+            driver_id: id,
+            driver_name: name // Enviamos el nombre legible
+        }));
+    }
+    
+    document.getElementById("autocompleteList").style.display = "none";
+    renderMiniHistory();
+}
 
       function renderAll() {
         const allDrivers = state.drivers
@@ -1079,23 +1160,74 @@
       // --- UTILS ---
       const socket = new WebSocket("wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev");
       socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "LIVE") {
-          const ms = data.current_ms;
-          const m = Math.floor(ms / 60000);
-          const s = Math.floor((ms % 60000) / 1000);
-          const x = Math.floor((ms % 1000) / 10);
-          document.getElementById("liveTime").innerText =
+    const data = JSON.parse(event.data);
+
+    // 1. LÓGICA PARA EL TIEMPO EN VIVO
+    if (data.type === "LIVE") {
+        const ms = data.current_ms;
+        const m = Math.floor(ms / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        const x = Math.floor((ms % 1000) / 10);
+        
+        document.getElementById("liveTime").innerText =
             `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(x).padStart(2, "0")}`;
+
+        if (data.driver_name) {
+            document.getElementById("nombre-piloto").innerText = data.driver_name;
         }
-        if (
-          data.type === "NEW_LAP" &&
-          document.getElementById("driverSelect").value
-        ) {
-          document.getElementById("lapTime").value = formatMs(data.time_ms);
-          saveLap();
+    }
+
+    // 2. LÓGICA PARA LA META (NEW_LAP)
+    if (data.type === "NEW_LAP") {
+        const idActual = document.getElementById("driverSelect").value;
+        
+        if (idActual) {
+            const tiempoFinalMs = data.time_ms;
+            const tiempoFinalTexto = formatMs(tiempoFinalMs);
+            
+            // Guardamos en la base de datos (tu lógica original)
+            document.getElementById("lapTime").value = tiempoFinalTexto;
+            saveLap();
+
+            // --- CÁLCULO DE POSICIÓN EN TIEMPO REAL ---
+            // 1. Obtenemos los mejores tiempos de todos los pilotos
+            let todosLosMejoresTiempos = state.drivers.map(d => {
+                const vueltas = state.laps[d.id] || [];
+                const mejor = vueltas.length ? Math.min(...vueltas.map(l => l.time)) : Infinity;
+                return mejor;
+            });
+
+            // 2. Comparamos el tiempo actual con los demás para saber el puesto
+            // Contamos cuántos tiempos son MEJORES (menores) que el que acabamos de hacer
+            const puesto = todosLosMejoresTiempos.filter(t => t < tiempoFinalMs).length + 1;
+
+            // --- MOSTRAR BANNER ---
+            const banner = document.getElementById("notification-banner");
+            const nombrePiloto = data.driver_name || document.getElementById("pilotSearch").value || "Piloto";
+
+            document.getElementById("notif-piloto").innerText = nombrePiloto;
+            document.getElementById("notif-tiempo").innerText = tiempoFinalTexto;
+            
+            // ACTUALIZACIÓN DEL PUESTO:
+            document.getElementById("notif-puesto").innerText = `PUESTO #${puesto}`;
+
+            // Cambiar color del borde si es el #1
+            if (puesto === 1) {
+                banner.style.borderBottom = "10px solid #ffcc00"; // Dorado para el Rey
+                document.getElementById("notif-puesto").style.color = "#ffcc00";
+            } else {
+                banner.style.borderBottom = "10px solid #ff0000"; // Rojo estándar
+                document.getElementById("notif-puesto").style.color = "#00ff00";
+            }
+
+            banner.classList.add("mostrar");
+
+            setTimeout(() => {
+                banner.classList.remove("mostrar");
+            }, 5000);
         }
-      };
+    }
+  }
 
       init();
     </script>
