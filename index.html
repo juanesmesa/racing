@@ -504,7 +504,7 @@
 
   <body>
     <header>
-      <h1>🏁 LEADERBOARD 🏁</h1>
+      <h1> LEADERBOARD 🏁</h1>
       <div class="actions">
         <button class="ghost" onclick="toggleTheme()" id="themeBtn">
           ☀️ DÍA
@@ -1077,7 +1077,7 @@
       }
 
       // --- UTILS ---
-      const socket = new WebSocket("ws://localhost:8765");
+      const socket = new WebSocket("wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev");
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "LIVE") {
