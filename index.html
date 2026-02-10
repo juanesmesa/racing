@@ -499,105 +499,135 @@
       }
 
       #notification-banner {
-    position: fixed;
-    top: -300px; /* Empieza arriba, fuera de la pantalla */
-    left: 50%;
-    transform: translateX(-50%); /* Centrado exacto horizontalmente */
-    width: 90%;
-    max-width: 800px;
-    background: rgba(10, 15, 20, 0.95);
-    color: white;
-    border-bottom: 10px solid #ff0000; /* Borde inferior grueso rojo racing */
-    padding: 40px;
-    transition: top 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto de caída con rebote */
-    z-index: 10000;
-    text-align: center;
-    border-radius: 0 0 30px 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    backdrop-filter: blur(10px);
-}
+        position: fixed;
+        top: -300px; /* Empieza arriba, fuera de la pantalla */
+        left: 50%;
+        transform: translateX(-50%); /* Centrado exacto horizontalmente */
+        width: 90%;
+        max-width: 800px;
+        background: rgba(10, 15, 20, 0.95);
+        color: white;
+        border-bottom: 10px solid #ff0000; /* Borde inferior grueso rojo racing */
+        padding: 40px;
+        transition: top 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto de caída con rebote */
+        z-index: 10000;
+        text-align: center;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+      }
 
-#notification-banner.mostrar {
-    top: 0; /* Baja hasta pegarse al techo de la pantalla */
-}
+      #notification-banner.mostrar {
+        top: 0; /* Baja hasta pegarse al techo de la pantalla */
+      }
 
-#notif-piloto { 
-    color: #ffcc00; 
-    font-weight: 900; 
-    display: block; 
-    font-size: 2rem; /* Nombre muy grande */
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
-}
+      #notif-piloto {
+        color: #ffcc00;
+        font-weight: 900;
+        display: block;
+        font-size: 2rem; /* Nombre muy grande */
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+      }
 
-#notif-info {
-    font-size: 1.2rem;
-    color: #aaa;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-}
+      #notif-info {
+        font-size: 1.2rem;
+        color: #aaa;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+      }
 
-#notif-tiempo { 
-    font-size: 5rem; /* El tiempo es el protagonista */
-    font-family: 'Digital-7 Mono', monospace; 
-    color: #fff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    margin: 15px 0;
-}
+      #notif-tiempo {
+        font-size: 5rem; /* El tiempo es el protagonista */
+        font-family: "Digital-7 Mono", monospace;
+        color: #fff;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        margin: 15px 0;
+      }
 
-#notif-puesto { 
-    font-size: 1.5rem; 
-    color: #00ff00; 
-    font-weight: bold;
-    text-transform: uppercase;
-}
+      #notif-puesto {
+        font-size: 1.5rem;
+        color: #00ff00;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
 
-        #notif-piloto { color: #ffcc00; font-weight: bold; display: block; font-size: 1.1rem; }
-        #notif-tiempo { font-size: 1.8rem; font-family: monospace; color: #fff; }
+      #notif-piloto {
+        color: #ffcc00;
+        font-weight: bold;
+        display: block;
+        font-size: 1.1rem;
+      }
+      #notif-tiempo {
+        font-size: 1.8rem;
+        font-family: monospace;
+        color: #fff;
+      }
 
+      /* ANIMACIÓN DE RESALTADO */
+      /* --- ANIMACIÓN MODO NOCHE (Amarillo o Verde) --- */
+      @keyframes row-pulse-dark {
+        0% {
+          background-color: #ffcc00 !important;
+          color: #000 !important;
+          box-shadow: 0 0 20px #ffcc00;
+        }
+        50% {
+          background-color: #eafa09 !important;
+          color: #000 !important;
+          box-shadow: 0 0 40px #acc713;
+        }
+        100% {
+          background-color: #b10586 !important;
+          color: #000 !important;
+          box-shadow: 0 0 20px #a3049b;
+        }
+      }
 
-/* ANIMACIÓN DE RESALTADO */
-/* --- ANIMACIÓN MODO NOCHE (Amarillo o Verde) --- */
-@keyframes row-pulse-dark {
-    0% { background-color: #ffcc00 !important; color: #000 !important; box-shadow: 0 0 20px #ffcc00; }
-    50% { background-color: #eafa09 !important; color: #000 !important; box-shadow: 0 0 40px #acc713; }
-    100% { background-color: #b10586 !important; color: #000 !important; box-shadow: 0 0 20px #a3049b; }
-}
+      /* --- ANIMACIÓN MODO DÍA (Azul Pro) --- */
+      @keyframes row-pulse-light {
+        0% {
+          background-color: #1f6feb !important;
+          color: #fff !important;
+          box-shadow: 0 0 20px #1f6feb;
+        }
+        50% {
+          background-color: #ffffff !important;
+          color: #1f6feb !important;
+          box-shadow: 0 0 40px #1f6feb;
+        }
+        100% {
+          background-color: #1f6feb !important;
+          color: #fff !important;
+          box-shadow: 0 0 20px #1f6feb;
+        }
+      }
 
-/* --- ANIMACIÓN MODO DÍA (Azul Pro) --- */
-@keyframes row-pulse-light {
-    0% { background-color: #1f6feb !important; color: #fff !important; box-shadow: 0 0 20px #1f6feb; }
-    50% { background-color: #ffffff !important; color: #1f6feb !important; box-shadow: 0 0 40px #1f6feb; }
-    100% { background-color: #1f6feb !important; color: #fff !important; box-shadow: 0 0 20px #1f6feb; }
-}
+      /* Clase base del resaltado */
+      .row-highlighted {
+        position: relative !important;
+        z-index: 9999 !important;
+        border: 3px solid #fff !important;
+        font-weight: 900 !important;
+        /* Por defecto usa la de noche */
+        animation: row-pulse-dark 0.5s ease-in-out 6 !important;
+      }
 
-/* Clase base del resaltado */
-.row-highlighted {
-    position: relative !important;
-    z-index: 9999 !important;
-    border: 3px solid #fff !important;
-    font-weight: 900 !important;
-    /* Por defecto usa la de noche */
-    animation: row-pulse-dark 0.5s ease-in-out 6 !important;
-}
+      /* --- CAMBIO AUTOMÁTICO PARA MODO DÍA --- */
+      [data-theme="light"] .row-highlighted {
+        animation: row-pulse-light 0.5s ease-in-out 6 !important;
+        border: 3px solid #1f6feb !important;
+      }
 
-/* --- CAMBIO AUTOMÁTICO PARA MODO DÍA --- */
-[data-theme="light"] .row-highlighted {
-    animation: row-pulse-light 0.5s ease-in-out 6 !important;
-    border: 3px solid #1f6feb !important;
-}
+      /* Borde del banner dinámico */
+      #notification-banner {
+        border-bottom: 10px solid var(--accent); /* Usará Rojo en Día y Azul en Noche */
+      }
 
-
-/* Borde del banner dinámico */
-#notification-banner {
-    border-bottom: 10px solid var(--accent); /* Usará Rojo en Día y Azul en Noche */
-}
-
-[data-theme="light"] #notification-banner {
-    border-bottom: 10px solid #1f6feb; /* Azul específico para el día */
-}
-
+      [data-theme="light"] #notification-banner {
+        border-bottom: 10px solid #1f6feb; /* Azul específico para el día */
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -605,15 +635,15 @@
 
   <body>
     <div id="notification-banner" class="notificacion-oculta">
-    <div class="notif-content">
+      <div class="notif-content">
         <span id="notif-piloto">PILOTO</span>
         <span id="notif-info">¡NUEVA VUELTA!</span>
         <div id="notif-tiempo">00:00.000</div>
         <div id="notif-puesto">PUESTO #1</div>
+      </div>
     </div>
-</div>
     <header>
-      <h1> LEADERBOARD 🏁</h1>
+      <h1>LEADERBOARD 🏁</h1>
       <div class="actions">
         <button class="ghost" onclick="toggleTheme()" id="themeBtn">
           ☀️ DÍA
@@ -736,9 +766,12 @@
               >CRONÓMETRO EN VIVO</label
             >
 
-            <p style="font-size: 1.2rem; color: #ffcc00; margin-bottom: 5px;">
-        En este momento corriendo: <span id="nombre-piloto" style="font-weight: bold;">Esperando...</span>
-    </p>
+            <p style="font-size: 1.2rem; color: #ffcc00; margin-bottom: 5px">
+              En este momento corriendo:
+              <span id="nombre-piloto" style="font-weight: bold"
+                >Esperando...</span
+              >
+            </p>
 
             <div id="liveTime">00:00.00</div>
             <div
@@ -820,20 +853,16 @@
       const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       let state = { drivers: [], laps: {} };
       let isAdmin = false;
-            // --- CANDADOS DE SEGURIDAD ---
+      // --- CANDADOS DE SEGURIDAD ---
       let ultimoTiempoSimulado = 0;
       let ultimaEjecucionReloj = 0;
 
       // --- CANDADOS DE SEGURIDAD PARA MÓVIL Y PC ---
-      let lastSavedTimeMs = 0;   // Guarda el tiempo de la vuelta (ej. 54432)
+      let lastSavedTimeMs = 0; // Guarda el tiempo de la vuelta (ej. 54432)
       let lastExecutionWallClock = 0; // Guarda la hora real (ej. 20:05:01)
 
-
-
-    
       const podColors = ["#FFC107", "#C0C0C0", "#CD7F32"];
       const podLabels = ["🥇 1er lugar", "🥈 2do lugar", "🥉 3er lugar"];
-  
 
       async function init() {
         await checkUser();
@@ -952,38 +981,50 @@
         }
       }
 
-     async function saveLap() {
-    const input = document.getElementById("lapTime");
-    const id = document.getElementById("driverSelect").value;
-    const timeValue = input.value;
+      async function saveLap() {
+        const input = document.getElementById("lapTime");
+        const id = document.getElementById("driverSelect").value;
+        const timeValue = input.value;
 
-    if (!id) { alert("⚠️ Selecciona un piloto primero."); return; }
-    const parts = timeValue.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
-    if (!parts) { alert("⚠️ Formato MM:SS.mmm"); return; }
+        if (!id) {
+          alert("⚠️ Selecciona un piloto primero.");
+          return;
+        }
+        const parts = timeValue.match(/^(\d{2}):(\d{2})\.(\d{1,3})$/);
+        if (!parts) {
+          alert("⚠️ Formato MM:SS.mmm");
+          return;
+        }
 
-    const ms = parseInt(parts[1]) * 60000 + parseInt(parts[2]) * 1000 + parseInt(parts[3].padEnd(3, "0"));
+        const ms =
+          parseInt(parts[1]) * 60000 +
+          parseInt(parts[2]) * 1000 +
+          parseInt(parts[3].padEnd(3, "0"));
 
-    // Guardar en Supabase
-    const { data, error } = await _supabase.from("laps").insert([{ driver_id: id, time_ms: ms }]).select();
+        // Guardar en Supabase
+        const { data, error } = await _supabase
+          .from("laps")
+          .insert([{ driver_id: id, time_ms: ms }])
+          .select();
 
-    if (error) {
-        console.error("Error al guardar:", error);
-    } else {
-        console.log("✅ Tiempo guardado");
-        
-        // --- ESTO CORRIGE EL DOBLE REGISTRO ---
-        // Le avisamos al socket que este tiempo ya se procesó
-        lastSavedTimeMs = ms;
-        lastExecutionWallClock = Date.now();
+        if (error) {
+          console.error("Error al guardar:", error);
+        } else {
+          console.log("✅ Tiempo guardado");
 
-        input.value = ""; 
-        await loadDataFromSupabase();
-        renderAll();
+          // --- ESTO CORRIGE EL DOBLE REGISTRO ---
+          // Le avisamos al socket que este tiempo ya se procesó
+          lastSavedTimeMs = ms;
+          lastExecutionWallClock = Date.now();
 
-        // --- ESTO ACTIVA EL BRILLO ---
-        ejecutarResaltado(id);
-    }
-}
+          input.value = "";
+          await loadDataFromSupabase();
+          renderAll();
+
+          // --- ESTO ACTIVA EL BRILLO ---
+          ejecutarResaltado(id);
+        }
+      }
 
       function showRecordNotice() {
         const msg = document.getElementById("recordMessage");
@@ -1048,38 +1089,44 @@
         }
       }
 
-    function selectPilot(id, name) {
-    document.getElementById("driverSelect").value = id;
-    document.getElementById("pilotSearch").value = name;
-    document.getElementById("autocompleteList").style.display = "none";
-    renderMiniHistory();
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: "SELECT_DRIVER",
-            driver_id: id,
-            driver_name: name // Enviamos el nombre legible
-        }));
-    }
-    
-    document.getElementById("autocompleteList").style.display = "none";
-    renderMiniHistory();
-}
+      function selectPilot(id, name) {
+        document.getElementById("driverSelect").value = id;
+        document.getElementById("pilotSearch").value = name;
+        document.getElementById("autocompleteList").style.display = "none";
+        renderMiniHistory();
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(
+            JSON.stringify({
+              type: "SELECT_DRIVER",
+              driver_id: id,
+              driver_name: name, // Enviamos el nombre legible
+            }),
+          );
+        }
 
-     function renderAll() {
-    const allDrivers = state.drivers
-        .map((d) => {
-            const times = state.laps[d.id] ? state.laps[d.id].map((l) => l.time) : [];
+        document.getElementById("autocompleteList").style.display = "none";
+        renderMiniHistory();
+      }
+
+      function renderAll() {
+        const allDrivers = state.drivers
+          .map((d) => {
+            const times = state.laps[d.id]
+              ? state.laps[d.id].map((l) => l.time)
+              : [];
             return {
-                ...d,
-                best: times.length ? Math.min(...times) : null,
-                count: times.length,
+              ...d,
+              best: times.length ? Math.min(...times) : null,
+              count: times.length,
             };
-        })
-        .sort((a, b) => a.best === null ? 1 : b.best === null ? -1 : a.best - b.best);
+          })
+          .sort((a, b) =>
+            a.best === null ? 1 : b.best === null ? -1 : a.best - b.best,
+          );
 
-    const podiumDrivers = allDrivers.filter((d) => d.best !== null);
-    document.getElementById("podiumTop3").innerHTML = [1, 2, 3]
-        .map((pos, i) => {
+        const podiumDrivers = allDrivers.filter((d) => d.best !== null);
+        document.getElementById("podiumTop3").innerHTML = [1, 2, 3]
+          .map((pos, i) => {
             const d = podiumDrivers[pos - 1];
             return `<div class="podiumCard" style="--card-color: ${podColors[i]}">
                 <div class="podium-inner">
@@ -1090,11 +1137,13 @@
                     </div>
                 </div>
             </div>`;
-        }).join("");
+          })
+          .join("");
 
-    // --- AQUÍ ESTABA EL ERROR: Añadimos data-driver-id ---
-    document.getElementById("fullLeaderboard").innerHTML = allDrivers
-        .map((d, i) => `
+        // --- AQUÍ ESTABA EL ERROR: Añadimos data-driver-id ---
+        document.getElementById("fullLeaderboard").innerHTML = allDrivers
+          .map(
+            (d, i) => `
             <div class="lbRow" data-driver-id="${d.id}"> 
                 <div class="cell">#${i + 1}</div>
                 <div class="cell" style="font-weight:bold;">${d.name}</div>
@@ -1103,11 +1152,12 @@
                 <div class="cell right">
                     <button class="btn-details" onclick="showDetails('${d.id}')">DETALLES</button>
                 </div>
-            </div>`
-        ).join("");
-    
-    renderMiniHistory();
-}
+            </div>`,
+          )
+          .join("");
+
+        renderMiniHistory();
+      }
 
       function showDetails(id) {
         const d = state.drivers.find((x) => x.id === id);
@@ -1187,86 +1237,107 @@
       }
 
       // --- UTILS ---
-      const socket = new WebSocket("wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev");
+      const socket = new WebSocket(
+        "wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev",
+      );
       socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
 
-    // 1. LÓGICA PARA EL TIEMPO EN VIVO
-    if (data.type === "LIVE") {
-        const ms = data.current_ms;
-        const m = Math.floor(ms / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
-        const x = Math.floor((ms % 1000) / 10);
-        
-        document.getElementById("liveTime").innerText =
+        // 1. LÓGICA PARA EL TIEMPO EN VIVO
+        if (data.type === "LIVE") {
+          const ms = data.current_ms;
+          const m = Math.floor(ms / 60000);
+          const s = Math.floor((ms % 60000) / 1000);
+          const x = Math.floor((ms % 1000) / 10);
+
+          document.getElementById("liveTime").innerText =
             `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(x).padStart(2, "0")}`;
 
-        if (data.driver_name) {
-            document.getElementById("nombre-piloto").innerText = data.driver_name;
+          if (data.driver_name) {
+            document.getElementById("nombre-piloto").innerText =
+              data.driver_name;
+          }
         }
-    }
 
-   if (data.type === "NEW_LAP") {
-        const tiempoSimMs = Math.floor(data.time_ms);
-        const ahoraReal = Date.now();
+        if (data.type === "NEW_LAP") {
+          const tiempoSimMs = Math.floor(data.time_ms);
+          const ahoraReal = Date.now();
 
-        if (tiempoSimMs === lastSavedTimeMs || (ahoraReal - lastExecutionWallClock) < 4000) return; 
+          if (
+            tiempoSimMs === lastSavedTimeMs ||
+            ahoraReal - lastExecutionWallClock < 4000
+          )
+            return;
 
-        lastSavedTimeMs = tiempoSimMs;
-        lastExecutionWallClock = ahoraReal;
+          lastSavedTimeMs = tiempoSimMs;
+          lastExecutionWallClock = ahoraReal;
 
-        const tiempoFinalTexto = formatMs(tiempoSimMs);
-        const nombrePiloto = data.driver_name;
+          const tiempoFinalTexto = formatMs(tiempoSimMs);
+          const nombrePiloto = data.driver_name;
 
-        // --- CALCULAR POSICIÓN REAL ---
-        // Esperamos un momento a que la base de datos se actualice y recalculamos
-        setTimeout(async () => {
+          // --- CALCULAR POSICIÓN REAL ---
+          // Esperamos un momento a que la base de datos se actualice y recalculamos
+          setTimeout(async () => {
             await loadDataFromSupabase();
             renderAll(); // Esto ya ordena a los pilotos por tiempo
 
             // Buscamos en qué índice de la tabla quedó el piloto
             const allDriversSorted = state.drivers
-                .map(d => ({
-                    id: d.id,
-                    best: (state.laps[d.id] && state.laps[d.id].length) ? Math.min(...state.laps[d.id].map(l => l.time)) : Infinity
-                }))
-                .sort((a, b) => a.best - b.best);
+              .map((d) => ({
+                id: d.id,
+                best:
+                  state.laps[d.id] && state.laps[d.id].length
+                    ? Math.min(...state.laps[d.id].map((l) => l.time))
+                    : Infinity,
+              }))
+              .sort((a, b) => a.best - b.best);
 
-            const puestoReal = allDriversSorted.findIndex(d => d.id === state.drivers.find(p => p.name === nombrePiloto)?.id) + 1;
+            const puestoReal =
+              allDriversSorted.findIndex(
+                (d) =>
+                  d.id ===
+                  state.drivers.find((p) => p.name === nombrePiloto)?.id,
+              ) + 1;
 
             // --- MOSTRAR BANNER CON DATOS REALES ---
             const banner = document.getElementById("notification-banner");
-            document.getElementById("notif-piloto").innerText = nombrePiloto || "Piloto";
-            document.getElementById("notif-tiempo").innerText = tiempoFinalTexto;
-            document.getElementById("notif-puesto").innerText = `PUESTO #${puestoReal || "?"}`;
-            
+            document.getElementById("notif-piloto").innerText =
+              nombrePiloto || "Piloto";
+            document.getElementById("notif-tiempo").innerText =
+              tiempoFinalTexto;
+            document.getElementById("notif-puesto").innerText =
+              `PUESTO #${puestoReal || "?"}`;
+
             banner.classList.add("mostrar");
             setTimeout(() => banner.classList.remove("mostrar"), 5000);
 
             // --- DISPARAR BRILLO ---
-            const pilotoObj = state.drivers.find(d => d.name === nombrePiloto);
+            const pilotoObj = state.drivers.find(
+              (d) => d.name === nombrePiloto,
+            );
             if (pilotoObj) ejecutarResaltado(pilotoObj.id);
-            
-        }, 1200); // Retraso de 1.2s para sincronizar con la nube
-    }
-  }
+          }, 1200); // Retraso de 1.2s para sincronizar con la nube
+        }
+      };
 
-function ejecutarResaltado(driverId) {
-    setTimeout(() => {
-        const fila = document.querySelector(`.lbRow[data-driver-id="${driverId}"]`);
-        if (fila) {
+      function ejecutarResaltado(driverId) {
+        setTimeout(() => {
+          const fila = document.querySelector(
+            `.lbRow[data-driver-id="${driverId}"]`,
+          );
+          if (fila) {
             // Scroll suave
-            fila.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
+            fila.scrollIntoView({ behavior: "smooth", block: "center" });
+
             // Limpieza y Reflow (esto fuerza el parpadeo amarillo)
             fila.classList.remove("row-highlighted");
-            void fila.offsetWidth; 
+            void fila.offsetWidth;
             fila.classList.add("row-highlighted");
-            
+
             setTimeout(() => fila.classList.remove("row-highlighted"), 5000);
-        }
-    }, 500);
-}
+          }
+        }, 500);
+      }
 
       init();
     </script>
