@@ -1320,24 +1320,23 @@
         }
       };
 
-      function ejecutarResaltado(driverId) {
-        setTimeout(() => {
-          const fila = document.querySelector(
-            `.lbRow[data-driver-id="${driverId}"]`,
-          );
-          if (fila) {
+     function ejecutarResaltado(driverId) {
+    setTimeout(() => {
+        const fila = document.querySelector(`.lbRow[data-driver-id="${driverId}"]`);
+        if (fila) {
             // Scroll suave
-            fila.scrollIntoView({ behavior: "smooth", block: "center" });
-
+            fila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
             // Limpieza y Reflow (esto fuerza el parpadeo amarillo)
             fila.classList.remove("row-highlighted");
-            void fila.offsetWidth;
+            void fila.offsetWidth; 
             fila.classList.add("row-highlighted");
-
+            
             setTimeout(() => fila.classList.remove("row-highlighted"), 5000);
-          }
-        }, 500);
-      }
+        }
+    }, 500);
+}
+
       init();
     </script>
   </body>
