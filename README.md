@@ -46,7 +46,6 @@ Este proyecto fue desarrollado para gestionar eventos de sim racing en la unidad
 
 
 - [ ] Eliminar registros de BD
-- [ ] Add delight to the experience when all tasks are complete :tada:
 
 
 ---
