@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Oxanium:wght@400;600;800&family=Chakra+Petch:wght@400;600;700&family=Audiowide&family=Genos:wght@400;700;800&family=Bruno+Ace+SC&family=Michroma&family=Sono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;900&display=swap" rel="stylesheet"
       rel="stylesheet"
     />
     <link
@@ -36,7 +36,7 @@
         --border2: #24374d;
         --accent: #1f6feb;
         --danger: #b42318;
-        --font-main: "Audiowide", sans-serif;
+        --font-main: "Rubik", sans-serif;
         --header-h: 90px;
         --grid-layout: 60px 250px 1fr 1fr 150px;
         --live-timer-color: #00ff00;
@@ -409,7 +409,23 @@
         border-top: 1px solid var(--border);
         padding-top: 15px;
         overflow-y: auto;
+
+
+        max-height: 300px; /* Altura máxima antes de mostrar scroll */
+        overflow-y: auto;  /* Habilita el scroll vertical */
+        padding-right: 5px; /* Espacio para la barrita de scroll */
       }
+
+      /* Opcional: Dale estilo a la barrita de scroll para que se vea racing */
+      .history-mini::-webkit-scrollbar {
+        width: 4px;
+      }
+      .history-mini::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 10px;
+      }
+
+
       .hist-item {
         display: flex;
         justify-content: space-between;
@@ -1194,8 +1210,13 @@
           return;
         }
         const laps = state.laps[id];
+
+        // Dentro de la función renderMiniHistory, antes del list.innerHTML:
+        const totalVueltas = laps.length;
+        document.getElementById("driverStatus").innerHTML = `<small style="color:var(--accent)">Total: ${totalVueltas} vueltas</small>`;
+
         list.innerHTML = laps
-          .slice(0, 3)
+          .slice(0, 10)
           .map(
             (l) => `
       <div class="hist-item">
