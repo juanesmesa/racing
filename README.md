@@ -45,8 +45,8 @@ Este proyecto fue desarrollado para gestionar eventos de sim racing en la unidad
 * **Estabilidad Visual:** Implementación de `font-variant-numeric: tabular-nums` para garantizar que los caracteres del cronómetro mantengan un ancho fijo durante la ejecución.
 
 
-[ ] Eliminar registros de BD
-[ ] Add delight to the experience when all tasks are complete :tada:
+- [ ] Eliminar registros de BD
+- [ ] Add delight to the experience when all tasks are complete :tada:
 
 
 ---
