@@ -44,7 +44,7 @@ Este proyecto fue desarrollado para gestionar eventos de sim racing en la unidad
 * **Comunicación:** Protocolo WebSocket en el puerto `8765`.
 * **Estabilidad Visual:** Implementación de `font-variant-numeric: tabular-nums` para garantizar que los caracteres del cronómetro mantengan un ancho fijo durante la ejecución.
 
-
+## 📋 Pendientes
 - [ ] Eliminar registros de BD
 
 
