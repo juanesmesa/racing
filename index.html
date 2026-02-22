@@ -42,32 +42,72 @@
         --live-timer-color: #00ff00;
       }
 
-      [data-theme="light"] {
-        /* Colores Base: Gris Humo / Platino */
-        --bg: #949494;
-        --card-bg: #bdbdbe;
-        --header-bg: rgba(148, 148, 148, 0.9);
-        --input-bg: #f3f4f6;
-        --text: #1f2937;
-        --border: #7f8c8d;
-        --border2: #4b5563;
+/* --- MODO DÍA: LIMPIEZA INTEGRAL Y CONTRASTE ALTO --- */
+[data-theme="light"] {
+  /* 1. Variables Globales */
+  --bg: #f1f5f9 !important;        /* Fondo general gris perla */
+  --card-bg: #ffffff !important;   /* Fondo de tarjetas blanco puro */
+  --header-bg: #ffffff !important; /* Encabezado blanco */
+  --text: #0f172a !important;      /* Texto azul muy oscuro */
+  --input-bg: #ffffff !important;  /* Fondo de inputs blanco */
+  --border: #cbd5e1 !important;    /* Bordes visibles */
+  --accent: #1e293b !important;    /* Azul marino para botones */
+  --live-timer-color: #0f172a !important;
+}
 
-        /* NUEVO: Rojo Competición (Ferrari/Brembo style) */
-        --accent: #e62020;
-        --live-timer-color: #111827;
-      }
+/* 2. Forzar Fondo y Texto en TODA la página */
+[data-theme="light"], 
+[data-theme="light"] body,
+[data-theme="light"] header,
+[data-theme="light"] aside,
+[data-theme="light"] main {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
 
-      /* EFECTO EXTRA: Podios Metálicos en Modo Claro */
-      [data-theme="light"] .podiumCard {
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
+/* 3. Solución para las CAJAS DE TEXTO (Inputs) */
+[data-theme="light"] input, 
+[data-theme="light"] select,
+[data-theme="light"] .search-wrapper input {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important; /* Borde más fuerte para que se vea */
+}
+[data-theme="light"] input::placeholder {
+  color: #64748b !important;
+}
 
-      [data-theme="light"] .podium-inner {
-        /* Un ligero brillo interno para simular metal */
-        background: linear-gradient(145deg, var(--card-bg), #d1d5db);
-      }
+/* 4. Solución para el PODIO 1 (Encerrarlo para que no vuele) */
+[data-theme="light"] .podiumCard {
+  background-color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important; /* Borde que lo encierra */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+}
+[data-theme="light"] .podiumCard:nth-child(1) {
+  /* Fondo Ámbar profundo con texto negro para máximo contraste */
+    background: #f59e0b !important; 
+    color: #000000 !important;
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
+}
 
+/* 5. Solución para las FILAS DE LA TABLA */
+[data-theme="light"] .lbRow {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+}
+[data-theme="light"] .lbHeader {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-bottom: 2px solid #0f172a !important;
+}
+
+/* 6. El nombre del piloto en el cronómetro */
+[data-theme="light"] #nombre-piloto {
+  color: #d97706 !important; /* Ámbar en lugar de amarillo */
+    text-shadow: none !important;
+    font-weight: 900 !important;
+}
       .admin-hidden {
         display: none !important;
       }
@@ -603,21 +643,9 @@
 
       /* --- ANIMACIÓN MODO DÍA (Azul Pro) --- */
       @keyframes row-pulse-light {
-        0% {
-          background-color: #1f6feb !important;
-          color: #fff !important;
-          box-shadow: 0 0 20px #1f6feb;
-        }
-        50% {
-          background-color: #ffffff !important;
-          color: #1f6feb !important;
-          box-shadow: 0 0 40px #1f6feb;
-        }
-        100% {
-          background-color: #1f6feb !important;
-          color: #fff !important;
-          box-shadow: 0 0 20px #1f6feb;
-        }
+        0% { background-color: #f59e0b !important; color: #fff !important; }
+        50% { background-color: #ffffff !important; color: #f59e0b !important; }
+        100% { background-color: #f59e0b !important; color: #fff !important; }
       }
 
       /* Clase base del resaltado */
@@ -632,8 +660,8 @@
 
       /* --- CAMBIO AUTOMÁTICO PARA MODO DÍA --- */
       [data-theme="light"] .row-highlighted {
-        animation: row-pulse-light 0.5s ease-in-out 6 !important;
-        border: 3px solid #1f6feb !important;
+        animation: row-pulse-light 0.4s ease-in-out 6 !important;
+        border: 2px solid #d97706 !important;
       }
 
       /* Borde del banner dinámico */
