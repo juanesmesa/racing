@@ -1,29 +1,32 @@
-import mmap
-import struct
+# bridge.py
 import asyncio
 import json
 import websockets
+import os  # <-- Asegúrate de tener importado 'os'
 from supabase import create_client, Client
 
+# === IMPORTACIONES DE CAPTURA ===
+from capture.shared_memory import get_assetto_data
+from capture.udp_receiver import get_f1_data
+
+# 🕹️ CONFIGURACIÓN DEL JUEGO ACTUAL
+# Ahora lee automáticamente lo que seleccionas en el archivo .bat
+JUEGO_ACTUAL = os.environ.get("JUEGO_ACTUAL", "ASSETTO_CORSA")
 
 active_driver_id = None
 active_driver_name = "Nadie en pista"
+
 # === CONFIGURACIÓN SUPABASE ===
 SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Variable global para saber a qué piloto guardarle el tiempo
-active_driver_id = None
-
 async def telemetry_server(websocket):
-    global active_driver_id
-    print("🏁 ORIÓN: Sistema conectado. Monitoreando pista...")
+    global active_driver_id, active_driver_name
+    print(f"🏁 ORIÓN: Sistema conectado en modo [{JUEGO_ACTUAL}]. Monitoreando pista...")
     last_lap_count = -1
     
-    # Tarea para escuchar mensajes desde la web (como SELECT_DRIVER)
-# Tarea para escuchar mensajes desde la web
-
+    # Tarea para escuchar mensajes desde la web
     async def listen_to_web():
         global active_driver_id, active_driver_name
         try:
@@ -31,43 +34,50 @@ async def telemetry_server(websocket):
                 data = json.loads(message)
                 if data.get("type") == "SELECT_DRIVER":
                     active_driver_id = data.get("driver_id")
-                    active_driver_name = data.get("driver_name") # Guardamos el nombre real
+                    active_driver_name = data.get("driver_name")
                     print(f"\n👤 Piloto activo en pista: {active_driver_name}")
         except Exception as e:
             print(f"Error en comunicación web: {e}")
 
+    async def listen_to_game():
+        """Función interna para decidir dinámicamente qué juego leer."""
+        if JUEGO_ACTUAL == "ASSETTO_CORSA":
+            return get_assetto_data()
+        elif JUEGO_ACTUAL == "F1":
+            return get_f1_data()
+        return {"vueltas": -1, "tiempo_actual": 0, "ultimo_tiempo": 0}
 
-    # Iniciamos la escucha en segundo plano
+    # Iniciamos la escucha de la web en segundo plano
     asyncio.create_task(listen_to_web())
 
     while True:
         try:
-            # Accedemos a la memoria de Assetto Corsa
-            shm = mmap.mmap(0, 512, "Local\\acpmf_graphics", access=mmap.ACCESS_READ)
+            # Obtener datos estandarizados del juego seleccionado
+            game_data = await listen_to_game()
             
-            # Unpack de datos según tus offsets calibrados
-            vueltas = struct.unpack('i', shm[132:136])[0]
-            tiempo_actual = struct.unpack('i', shm[140:144])[0]
-            ultimo_tiempo = struct.unpack('i', shm[144:148])[0]
-
+            vueltas = game_data["vueltas"]
+            tiempo_actual = game_data["tiempo_actual"]
+            ultimo_tiempo = game_data["ultimo_tiempo"]
+            print(f"📡 Datos leídos -> Vuelta: {vueltas} | Tiempo: {tiempo_actual}ms", end="\r")
             if tiempo_actual > 0:
                 # 1. Enviar tiempo en vivo a la web
                 payload_live = {
                     "type": "LIVE", 
-                     "current_ms": tiempo_actual,
-                     "driver_name": active_driver_name if active_driver_id else "Nadie en pista"
-                   #  "driver_name": active_driver_id if active_driver_id else "Nadie en pista"
-}
+                    "current_ms": tiempo_actual,
+                    "driver_name": active_driver_name if active_driver_id else "Nadie en pista"
+                }
                 await websocket.send(json.dumps(payload_live))
 
-                print(f"Vuelta: {vueltas} | Cronómetro: {tiempo_actual}ms", end="\r")
+                print(f"Juego: {JUEGO_ACTUAL} | Vuelta: {vueltas} | Cronómetro: {tiempo_actual}ms", end="\r")
 
                 # 2. Detectar fin de vuelta (Meta)
                 if vueltas > last_lap_count:
                     if last_lap_count != -1 and ultimo_tiempo > 0:
-                        # Enviar a la web para efectos visuales
-                        payload = {"type": "NEW_LAP", "time_ms": ultimo_tiempo, 
-                        "driver_name": active_driver_name}
+                        payload = {
+                            "type": "NEW_LAP", 
+                            "time_ms": ultimo_tiempo, 
+                            "driver_name": active_driver_name
+                        }
                         await websocket.send(json.dumps(payload))
                         
                         print(f"\n✅ META DETECTADA: {ultimo_tiempo}ms")
@@ -87,8 +97,7 @@ async def telemetry_server(websocket):
                     
                     last_lap_count = vueltas
             
-            shm.close()
-            await asyncio.sleep(0.05) # 20Hz de refresco (fluido y eficiente)
+            await asyncio.sleep(0.05) # 20Hz de refresco
 
         except websockets.exceptions.ConnectionClosed:
             print("\n🔌 Conexión cerrada con el navegador.")
@@ -98,9 +107,9 @@ async def telemetry_server(websocket):
             await asyncio.sleep(1)
 
 async def main():
-    print("🚀 BRIDGE ORIÓN V8 - INTEGRACIÓN SUPABASE ACTIVA")
+    print(f"🚀 BRIDGE ORIÓN V8.1 - MODO MULTI-SIMULADOR [{JUEGO_ACTUAL}]")
     async with websockets.serve(telemetry_server, "0.0.0.0", 8765):
-        await asyncio.Future()  # Corre para siempre
+        await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
