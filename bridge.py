@@ -2,7 +2,8 @@
 import asyncio
 import json
 import websockets
-import os  # <-- Asegúrate de tener importado 'os'
+import os
+import uuid
 from supabase import create_client, Client
 
 # === IMPORTACIONES DE CAPTURA ===
@@ -18,8 +19,33 @@ active_driver_name = "Nadie en pista"
 
 # === CONFIGURACIÓN SUPABASE ===
 SUPABASE_URL = "https://knasnjakrhsxfanhfjha.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuYXNuamFrcmhzeGZhbmhmamhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NzAxMzYsImV4cCI6MjA4NjE0NjEzNn0.XGwk7EOVOH_RktntWtuIPvijzv2G-VIbktt27XhJstQ"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Las claves privadas SOLO se configuran en Windows, nunca en GitHub.
+SUPABASE_SECRET_KEY = os.environ.get("ORION_SUPABASE_SECRET_KEY", "").strip()
+SUPABASE_ANON_KEY = os.environ.get("ORION_SUPABASE_ANON_KEY", "").strip()
+ADMIN_USER_ID = os.environ.get("ORION_ADMIN_USER_ID", "").strip().lower()
+
+if not SUPABASE_SECRET_KEY or not SUPABASE_SECRET_KEY.startswith("sb_secret_"):
+    raise SystemExit("Falta ORION_SUPABASE_SECRET_KEY (sb_secret_...) en Windows.")
+if not SUPABASE_ANON_KEY:
+    raise SystemExit("Falta ORION_SUPABASE_ANON_KEY (clave publica) en Windows.")
+try:
+    ADMIN_USER_ID = str(uuid.UUID(ADMIN_USER_ID))
+except ValueError:
+    raise SystemExit("ORION_ADMIN_USER_ID debe ser el UUID de Authentication > Users.")
+
+# Cliente privilegiado solo para insertar vueltas; cliente publico para validar sesiones.
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
+auth_client: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+
+def verified_admin(token):
+    if not isinstance(token, str) or not token or len(token) > 8192:
+        return False
+    try:
+        response = auth_client.auth.get_user(token)
+        return bool(response.user and str(response.user.id).lower() == ADMIN_USER_ID)
+    except Exception:
+        return False
 
 async def telemetry_server(websocket):
     global active_driver_id, active_driver_name
@@ -33,9 +59,26 @@ async def telemetry_server(websocket):
             async for message in websocket:
                 data = json.loads(message)
                 if data.get("type") == "SELECT_DRIVER":
-                    active_driver_id = data.get("driver_id")
-                    active_driver_name = data.get("driver_name")
-                    print(f"\n👤 Piloto activo en pista: {active_driver_name}")
+                    # Un visitante puede mirar el cronometro, pero no seleccionar pilotos.
+                    token = data.get("access_token")
+                    authorized = await asyncio.to_thread(verified_admin, token)
+                    if not authorized:
+                        await websocket.send(json.dumps({"type": "ERROR", "message": "Seleccion de piloto no autorizada"}))
+                        continue
+                    try:
+                        driver_id = str(uuid.UUID(str(data.get("driver_id", ""))))
+                        # El nombre proviene de la BD, no del mensaje del navegador.
+                        result = await asyncio.to_thread(
+                            lambda: supabase.table("drivers").select("id,name").eq("id", driver_id).single().execute()
+                        )
+                        if not result.data:
+                            raise ValueError("Piloto inexistente")
+                        active_driver_id = driver_id
+                        active_driver_name = result.data["name"]
+                        print(f"\n👤 Piloto activo en pista: {active_driver_name}")
+                    except Exception as exc:
+                        print(f"\nSeleccion de piloto rechazada: {type(exc).__name__}")
+                        await websocket.send(json.dumps({"type": "ERROR", "message": "Piloto no valido"}))
         except Exception as e:
             print(f"Error en comunicación web: {e}")
 
