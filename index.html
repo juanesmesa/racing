@@ -986,6 +986,10 @@
           isAdmin = true;
           closeLoginModal();
           updateAdminUI();
+          await sendAuthorizedDriverSelection(
+            document.getElementById("driverSelect").value,
+            document.getElementById("pilotSearch").value
+          );
         }
       }
 
@@ -1133,20 +1137,16 @@
         }
       }
 
-      function selectPilot(id, name) {
+      async function selectPilot(id, name) {
+        if (!isAdmin) {
+          alert("Inicia sesion como administrador para seleccionar el piloto activo.");
+          return;
+        }
         document.getElementById("driverSelect").value = id;
         document.getElementById("pilotSearch").value = name;
         document.getElementById("autocompleteList").style.display = "none";
         renderMiniHistory();
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(
-            JSON.stringify({
-              type: "SELECT_DRIVER",
-              driver_id: id,
-              driver_name: name, // Enviamos el nombre legible
-            }),
-          );
-        }
+        await sendAuthorizedDriverSelection(id, name);
 
         document.getElementById("autocompleteList").style.display = "none";
         renderMiniHistory();
@@ -1286,11 +1286,35 @@
       }
 
       // --- UTILS ---
+      async function sendAuthorizedDriverSelection(id, name) {
+        if (!isAdmin || !socket || socket.readyState !== WebSocket.OPEN || !id) return;
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session?.access_token) {
+          console.warn("Sesion no disponible para seleccionar piloto");
+          return;
+        }
+        socket.send(JSON.stringify({
+          type: "SELECT_DRIVER",
+          driver_id: id,
+          driver_name: name,
+          access_token: session.access_token,
+        }));
+      }
+
       const socket = new WebSocket(
         "wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev",
       );
+      socket.onopen = () => {
+        const id = document.getElementById("driverSelect").value;
+        const name = document.getElementById("pilotSearch").value;
+        if (id) sendAuthorizedDriverSelection(id, name);
+      };
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        if (data.type === "ERROR") {
+          console.warn("Orión Bridge:", data.message);
+          return;
+        }
 
         // 1. LÓGICA PARA EL TIEMPO EN VIVO
         if (data.type === "LIVE") {
