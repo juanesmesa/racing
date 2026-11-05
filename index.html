@@ -755,6 +755,7 @@
             <div id="autocompleteList" class="autocomplete-list"></div>
           </div>
           <input type="hidden" id="driverSelect" value="" />
+          <button class="primary admin-only admin-hidden" id="setActiveDriverBtn" onclick="setActiveDriver()">🏁 Establecer piloto en pista</button>
 
           <div class="admin-only admin-hidden">
             <label>Tiempo (MM:SS.mmm)</label>
@@ -986,10 +987,6 @@
           isAdmin = true;
           closeLoginModal();
           updateAdminUI();
-          await sendAuthorizedDriverSelection(
-            document.getElementById("driverSelect").value,
-            document.getElementById("pilotSearch").value
-          );
         }
       }
 
@@ -1137,19 +1134,28 @@
         }
       }
 
-      async function selectPilot(id, name) {
-        if (!isAdmin) {
-          alert("Inicia sesion como administrador para seleccionar el piloto activo.");
-          return;
-        }
+      // Buscar un piloto solo cambia el historial local. No cambia el piloto en pista.
+      function selectPilot(id, name) {
         document.getElementById("driverSelect").value = id;
         document.getElementById("pilotSearch").value = name;
         document.getElementById("autocompleteList").style.display = "none";
         renderMiniHistory();
-        await sendAuthorizedDriverSelection(id, name);
+      }
 
-        document.getElementById("autocompleteList").style.display = "none";
-        renderMiniHistory();
+      // Solo un administrador puede solicitar al bridge cambiar el piloto activo.
+      async function setActiveDriver() {
+        if (!isAdmin) return;
+        const id = document.getElementById("driverSelect").value;
+        const name = document.getElementById("pilotSearch").value;
+        if (!id || !state.drivers.some(d => d.id === id && d.name === name)) {
+          alert("Primero selecciona un piloto de la lista.");
+          return;
+        }
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          alert("El puente de telemetría no está conectado.");
+          return;
+        }
+        await sendAuthorizedDriverSelection(id, name);
       }
 
       function renderAll() {
@@ -1304,11 +1310,6 @@
       const socket = new WebSocket(
         "wss://cleotilde-stroboscopic-jaunita.ngrok-free.dev",
       );
-      socket.onopen = () => {
-        const id = document.getElementById("driverSelect").value;
-        const name = document.getElementById("pilotSearch").value;
-        if (id) sendAuthorizedDriverSelection(id, name);
-      };
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === "ERROR") {
