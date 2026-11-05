@@ -292,6 +292,27 @@
         min-height: 180px;
         display: flex;
       }
+      /* ORION: podio escalonado con espacio real para su contenido. */
+      @media (min-width: 901px) {
+        .podium-container { align-items: end; }
+        .podiumCard { min-height: 0; }
+        .podiumCard:nth-child(1) {
+          grid-column: 2;
+          grid-row: 1;
+          height: 320px;
+          box-shadow: 0 0 16px rgba(255, 193, 7, 0.20);
+        }
+        .podiumCard:nth-child(2) {
+          grid-column: 1;
+          grid-row: 1;
+          height: 280px;
+        }
+        .podiumCard:nth-child(3) {
+          grid-column: 3;
+          grid-row: 1;
+          height: 260px;
+        }
+      }
       .podium-inner {
         width: 100%;
         height: 100%;
@@ -313,6 +334,98 @@
         align-items: center;
         gap: 8px;
         text-transform: uppercase;
+      }
+
+      /* ORION: podio premium - solo presentacion. */
+      .podiumCard { overflow: hidden; isolation: isolate; }
+      .podiumCard:nth-child(1) { --podium-glow: rgba(255,195,18,.19); }
+      .podiumCard:nth-child(2) { --podium-glow: rgba(200,215,235,.12); }
+      .podiumCard:nth-child(3) { --podium-glow: rgba(212,124,54,.13); }
+      .podium-inner {
+        position: relative;
+        isolation: isolate;
+        align-items: center;
+        gap: 6px;
+        padding: 16px 20px 14px;
+        background: radial-gradient(ellipse at 50% 46%, var(--podium-glow), transparent 68%), var(--card-bg);
+      }
+      .podium-inner::before, .podium-inner::after {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        top: 32%;
+        width: 110px;
+        height: 105px;
+        opacity: .12;
+        background: repeating-conic-gradient(#b6c4d7 0 25%, transparent 0 50%) 0 0 / 26px 26px;
+        pointer-events: none;
+        transform: skewY(-15deg) rotate(-10deg);
+        mask-image: linear-gradient(to bottom, transparent, black 30%, transparent);
+      }
+      .podium-inner::before { left: -14px; }
+      .podium-inner::after { right: -14px; transform: scaleX(-1) skewY(-15deg) rotate(-10deg); }
+      .puesto-badge {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .podium-stage {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+      .podium-emblem {
+        width: min(112px, 30%);
+        height: 96px;
+        flex-shrink: 1;
+        filter: drop-shadow(0 5px 13px var(--podium-glow));
+      }
+      .podium-emblem svg { display: block; width: 100%; height: 100%; }
+      .podiumCard:nth-child(1) .podium-emblem { width: min(150px, 40%); height: 120px; }
+      .podium-stage .pilot-info { width: 100%; min-width: 0; text-align: center; }
+      .podium-stage .pilot-name-big { font-size: clamp(18px, 1.6vw, 25px); margin: 1px 0 9px; }
+      .podium-stage .time-pill {
+        display: inline-flex;
+        justify-content: center;
+        max-width: 100%;
+        padding: 8px 18px;
+        border: 1px solid color-mix(in srgb, var(--card-color) 55%, transparent);
+        box-shadow: 0 0 16px var(--podium-glow);
+      }
+      .podium-stage .time-pill strong { font-size: clamp(18px, 1.6vw, 25px); font-variant-numeric: tabular-nums; }
+      .podium-footer {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        padding: 5px 13px;
+        border-radius: 999px;
+        color: var(--card-color);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        text-align: center;
+      }
+      .podiumCard:nth-child(1) .podium-footer { background: var(--card-color); color: #161a20; }
+      /* Evita que el texto del tercer puesto se superponga al borde del tiempo. */
+      .podiumCard:nth-child(3) .podium-emblem { height: 78px; }
+      .podiumCard:nth-child(3) .podium-footer { margin-top: 10px; line-height: 1.4; }
+
+      [data-theme="light"] .podium-inner { background: radial-gradient(ellipse at 50% 46%, var(--podium-glow), transparent 68%), #fff; }
+      @media (max-width: 900px) {
+        .podiumCard { min-height: 235px; }
+        .podium-inner { padding: 15px; }
+        .podium-emblem, .podiumCard:nth-child(1) .podium-emblem { width: 100px; height: 86px; }
       }
       .puesto-numero-bg {
         font-size: 45px;
@@ -1181,21 +1294,30 @@
             return `<div class="podiumCard" style="--card-color: ${podColors[i]}">
                 <div class="podium-inner">
                     <div class="puesto-badge">${podLabels[i]}</div>
-                    <div class="pilot-info">
-                        <div class="pilot-name-big">${d ? d.name : "VACANTE"}</div>
-                        <div class="time-pill"><strong>${d ? formatMs(d.best) : "--:--.---"}</strong></div>
+                    <div class="podium-stage">
+                        <div class="podium-emblem" aria-hidden="true">${i === 0 ? `<svg viewBox="0 0 180 140" aria-hidden="true" focusable="false"><defs><linearGradient id="orion-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2a1"/><stop offset=".35" stop-color="#f9c844"/><stop offset=".7" stop-color="#c88b11"/><stop offset="1" stop-color="#ffe179"/></linearGradient></defs><g fill="none" stroke="#d4a43b" stroke-width="3" opacity=".68"><path d="M35 95Q15 75 24 48M145 95Q165 75 156 48"/><path d="M29 88l-13-2M24 74l-12-7M23 60l-8-10M151 88l13-2M156 74l12-7M157 60l8-10"/></g><path d="M59 29H121V64Q121 96 90 103Q59 96 59 64Z" fill="url(#orion-gold)" stroke="#ffe7a3" stroke-width="2"/><path d="M59 37H43Q33 37 34 51Q35 68 60 73M121 37H137Q147 37 146 51Q145 68 120 73" fill="none" stroke="#e3b84e" stroke-width="9"/><path d="M90 103V117M70 118H110V127H70Z" stroke="#e9ba50" stroke-width="8" stroke-linejoin="round"/><path d="M75 128H105" stroke="#fff0aa" stroke-width="3"/><path d="M71 38Q68 76 86 88" fill="none" stroke="#fff3ae" stroke-width="6" opacity=".45"/></svg>` : `<svg viewBox="0 0 150 140" aria-hidden="true" focusable="false"><defs><linearGradient id="orion-medal-${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${i === 1 ? '#f6f8fb' : '#ffd49c'}"/><stop offset=".55" stop-color="${i === 1 ? '#aeb8c6' : '#c47a39'}"/><stop offset="1" stop-color="${i === 1 ? '#657386' : '#81441e'}"/></linearGradient></defs><path d="M53 13H73L84 54H64Z" fill="#2766bc"/><path d="M77 13H98L85 54H65Z" fill="#4d95f3"/><circle cx="75" cy="86" r="39" fill="url(#orion-medal-${i})" stroke="${i === 1 ? '#d9e1ea' : '#f0b478'}" stroke-width="5"/><circle cx="75" cy="86" r="30" fill="none" stroke="#fff" stroke-opacity=".32" stroke-width="2"/><text x="75" y="100" text-anchor="middle" font-size="40" font-weight="900" fill="${i === 1 ? '#3a4656' : '#5d321a'}" font-family="Rubik,Arial,sans-serif">${i+1}</text></svg>`}</div>
+                        <div class="pilot-info">
+                            <div class="pilot-name-big">${d ? d.name : "VACANTE"}</div>
+                            <div class="time-pill"><strong>${d ? formatMs(d.best) : "--:--.---"}</strong></div>
+                        </div>
                     </div>
+                    <div class="podium-footer">${i === 0 ? "LÍDER DE PISTA" : i === 1 ? "SUBCAMPEÓN" : "TERCER PUESTO"}</div>
                 </div>
             </div>`;
           })
           .join("");
 
-        // --- AQUÍ ESTABA EL ERROR: Añadimos data-driver-id ---
-        document.getElementById("fullLeaderboard").innerHTML = allDrivers
+        // El podio ya muestra los tres mejores pilotos con tiempo valido.
+        // En la tabla solo aparecen los demas, conservando su puesto real.
+        const podiumIds = new Set(podiumDrivers.slice(0, 3).map(d => d.id));
+        const remainingDrivers = allDrivers
+          .map((d, i) => ({ ...d, rank: i + 1 }))
+          .filter(d => !podiumIds.has(d.id));
+        document.getElementById("fullLeaderboard").innerHTML = remainingDrivers
           .map(
-            (d, i) => `
+            (d) => `
             <div class="lbRow" data-driver-id="${d.id}"> 
-                <div class="cell">#${i + 1}</div>
+                <div class="cell">#${d.rank}</div>
                 <div class="cell" style="font-weight:bold;">${d.name}</div>
                 <div class="cell center">${d.best ? formatMs(d.best) : "—"}</div>
                 <div class="cell center">${d.count}</div>
